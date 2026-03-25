@@ -10,7 +10,7 @@
 	"name": "Remove Effect",
 	"version": "v1.0.0",
 	"developer": "Axtra",
-	"description": "Disable certain visual effects in the game",
+	"description": "Disable certain visual effects in the game. Features: No Orb Pulse (disables orb pulsing), No Circles (disables all circle effects)",
 	"dependencies": {
 		"geode.node-ids": ">=v1.20.0"
 	},
