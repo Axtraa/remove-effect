@@ -20,6 +20,12 @@
 			"name": "No Orb Pulse",
 			"description": "Disables orbs from pulsing",
 			"default": false
+		},
+		"no-circles": {
+			"type": "bool",
+			"name": "No Circles",
+			"description": "Disables all circle effects",
+			"default": false
 		}
 	}
 }

@@ -1,6 +1,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/loader/SettingV3.hpp>
 #include <Geode/modify/PlayLayer.hpp>
+#include <Geode/modify/CCCircleWave.hpp>
 
 using namespace geode::prelude;
 
@@ -19,5 +20,14 @@ class $modify (PlayLayer) {
 
         fmod->m_pulse1 = pulse1;
         m_audioEffectsLayer->m_audioScale = audioScale;
+    }
+};
+
+class $modify (CCCircleWave) {
+    virtual void draw() {
+        if (Mod::get()->getSettingValue<bool>("no-circles")) {
+            return;
+        }
+        CCCircleWave::draw();
     }
 };
