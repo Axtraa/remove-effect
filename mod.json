@@ -1,31 +1,31 @@
 {
-	"geode": "5.4.1",
-	"gd": {
-		"win": "2.2081",
-		"android": "2.2081",
-		"mac": "2.2081",
-		"ios": "2.2081"
-	},
-	"id": "axtra.remove-effect",
-	"name": "Remove Effect",
-	"version": "v1.0.0",
-	"developer": "Axtra",
-	"description": "Disable certain visual effects in the game. Features: No Orb Pulse (disables orb pulsing), No Circles (disables all circle effects)",
-	"dependencies": {
-		"geode.node-ids": ">=v1.20.0"
-	},
-	"settings": {
-		"no-orb-pulse": {
-			"type": "bool",
-			"name": "No Orb Pulse",
-			"description": "Disables orbs from pulsing",
-			"default": false
-		},
-		"no-circles": {
-			"type": "bool",
-			"name": "No Circles",
-			"description": "Disables all circle effects",
-			"default": false
-		}
-	}
+  "geode": "5.4.1",
+  "gd": {
+    "win": "2.2081",
+    "android": "2.2081",
+    "mac": "2.2081",
+    "ios": "2.2081"
+  },
+  "id": "axtra.remove-effect",
+  "name": "Remove Effect",
+  "version": "v1.0.0",
+  "developer": "Axtra",
+  "description": "Disable certain visual effects in the game.",
+  "dependencies": {
+    "geode.node-ids": ">=v1.20.0"
+  },
+  "settings": {
+    "no-orb-pulse": {
+      "type": "bool",
+      "name": "No Orb Pulse",
+      "description": "Disables orbs from pulsing",
+      "default": false
+    },
+    "no-circles": {
+      "type": "bool",
+      "name": "No Circles",
+      "description": "Disables all circle effects",
+      "default": false
+    }
+  }
 }
