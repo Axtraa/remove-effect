@@ -1,5 +1,6 @@
 #include <Geode/Geode.hpp>
 #include <Geode/loader/SettingV3.hpp>
+#include <Geode/modify/PlayLayer.hpp>
 
 using namespace geode::prelude;
 
