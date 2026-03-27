@@ -14,6 +14,11 @@
   "dependencies": {
     "geode.node-ids": ">=v1.20.0"
   },
+  "resources": {
+    "sprites": [
+      "resources/button.png"
+    ]
+  },
   "settings": {
     "no-orb-pulse": {
       "type": "bool",
