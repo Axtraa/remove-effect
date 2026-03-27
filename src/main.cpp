@@ -51,7 +51,7 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
             menu_selector(RemoveEffectPauseLayer::onOpenSettings)
         );
         button->setID("remove-effect-settings-btn"_spr);
-        button->setScale(0.6f);
+        button->setScale(0.4f);
 
         menu->addChild(button);
         menu->updateLayout();
