@@ -12,7 +12,11 @@
   "developer": "Axtra",
   "description": "Disable certain visual effects in the game.",
   "dependencies": {
-    "geode.node-ids": ">=v1.20.0"
+    "geode.node-ids": ">=v1.20.0",
+    "eclipse.eclipse-menu": {
+      "version": ">=v1.0.0",
+      "importance": "suggested"
+    }
   },
   "settings": {
     "no-orb-pulse": {
