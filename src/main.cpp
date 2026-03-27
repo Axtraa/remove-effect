@@ -3,6 +3,7 @@
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/modify/CCCircleWave.hpp>
 #include <Geode/modify/PauseLayer.hpp>
+#include <Geode/ui/GeodeUI.hpp>
 
 using namespace geode::prelude;
 
@@ -40,7 +41,9 @@ class $modify (PauseLayer) {
         auto menu = this->getChildByID("right-button-menu");
         if (!menu) return;
 
-        auto buttonSprite = CircleButtonSprite::create("button.png"_spr);
+        auto buttonSprite = CircleButtonSprite::create(
+            CCSprite::create("button.png"_spr)
+        );
         
         auto button = CCMenuItemSpriteExtra::create(
             buttonSprite,
@@ -55,6 +58,6 @@ class $modify (PauseLayer) {
     }
 
     void onOpenSettings(CCObject* sender) {
-        geode::openModsList("axtra.remove-effect");
+        openSettingsPopup(Mod::get());
     }
 };
