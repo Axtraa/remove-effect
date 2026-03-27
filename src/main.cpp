@@ -44,6 +44,7 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
         auto buttonSprite = CircleButtonSprite::create(
             CCSprite::create("button.png"_spr)
         );
+        buttonSprite->setScale(0.6f);
 
         auto button = CCMenuItemSpriteExtra::create(
             buttonSprite,
@@ -51,7 +52,6 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
             menu_selector(RemoveEffectPauseLayer::onOpenSettings)
         );
         button->setID("remove-effect-settings-btn"_spr);
-        button->setScale(0.4f);
 
         menu->addChild(button);
         menu->updateLayout();
