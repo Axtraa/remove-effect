@@ -34,7 +34,7 @@ class $modify (CCCircleWave) {
     }
 };
 
-class $modify (PauseLayer) {
+class $modify (RemoveEffectPauseLayer, PauseLayer) {
     void customSetup() {
         PauseLayer::customSetup();
 
@@ -44,11 +44,11 @@ class $modify (PauseLayer) {
         auto buttonSprite = CircleButtonSprite::create(
             CCSprite::create("button.png"_spr)
         );
-        
+
         auto button = CCMenuItemSpriteExtra::create(
             buttonSprite,
             this,
-            menu_selector(PauseLayer::onOpenSettings)
+            menu_selector(RemoveEffectPauseLayer::onOpenSettings)
         );
         button->setID("remove-effect-settings-btn"_spr);
         button->setScale(0.6f);
