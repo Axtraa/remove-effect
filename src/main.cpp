@@ -14,8 +14,9 @@ class $modify (PlayLayer) {
         auto audioScale = m_audioEffectsLayer->m_audioScale;
 
         if (Mod::get()->getSettingValue<bool>("no-orb-pulse")) {
-            fmod->m_pulse1 = 0.7f;
-            m_audioEffectsLayer->m_audioScale = 0.7f;
+            auto orbPulseSize = Mod::get()->getSettingValue<float>("orb-pulse-size");
+            fmod->m_pulse1 = orbPulseSize;
+            m_audioEffectsLayer->m_audioScale = orbPulseSize;
         }
 
         PlayLayer::updateVisibility(dt);
