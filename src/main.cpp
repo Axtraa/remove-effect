@@ -60,13 +60,17 @@ class $modify (PlayLayer) {
         auto currentPct = getCurrentPercent();
         auto targetPct = Mod::get()->getSettingValue<float>("auto-tap-percentage");
 
+        // Normalize if getCurrentPercent returns 0.0-1.0 instead of 0-100
+        if (currentPct <= 1.0f) {
+            currentPct *= 100.0f;
+        }
+
         if (currentPct >= targetPct && !m_fields->m_autoTapTriggered) {
             m_fields->m_autoTapTriggered = true;
 
             for (auto& kb : Mod::get()->getSettingValue<std::vector<Keybind>>("auto-tap-key")) {
-                auto dispatcher = CCDirector::sharedDirector()->getKeyboardDispatcher();
-                dispatcher->dispatchKeyboardMSG(kb.key, true, false, 0.0);
-                dispatcher->dispatchKeyboardMSG(kb.key, false, false, 0.0);
+                this->keyDown(kb.key, 0.0);
+                this->keyUp(kb.key, 0.0);
             }
         }
     }
