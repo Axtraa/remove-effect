@@ -20,15 +20,19 @@ using namespace geode::prelude;
 class $modify (PlayLayer) {
     struct Fields {
         bool m_autoTapTriggered = false;
+        bool m_autoTapRelease = false;
+        enumKeyCodes m_autoTapReleaseKey = KEY_None;
     };
 
     void setupHasCompleted() {
         PlayLayer::setupHasCompleted();
         m_fields->m_autoTapTriggered = false;
+        m_fields->m_autoTapRelease = false;
     }
 
     void resetLevel() {
         m_fields->m_autoTapTriggered = false;
+        m_fields->m_autoTapRelease = false;
         PlayLayer::resetLevel();
     }
 
@@ -48,6 +52,12 @@ class $modify (PlayLayer) {
         fmod->m_pulse1 = pulse1;
         m_audioEffectsLayer->m_audioScale = audioScale;
 
+        // Release auto-tap key on the next frame
+        if (m_fields->m_autoTapRelease) {
+            m_fields->m_autoTapRelease = false;
+            this->keyUp(m_fields->m_autoTapReleaseKey, 0.0);
+        }
+
         handleAutoTap();
     }
 
@@ -57,15 +67,21 @@ class $modify (PlayLayer) {
             return;
         }
 
-        auto currentPct = m_currentProgress;
+        auto currentPct = getCurrentPercent();
         auto targetPct = Mod::get()->getSettingValue<float>("auto-tap-percentage");
+
+        // Normalize if getCurrentPercent returns 0.0-1.0 instead of 0-100
+        if (currentPct <= 1.0f) {
+            currentPct *= 100.0f;
+        }
 
         if (!m_fields->m_autoTapTriggered && currentPct >= targetPct) {
             m_fields->m_autoTapTriggered = true;
 
             for (auto& kb : Mod::get()->getSettingValue<std::vector<Keybind>>("auto-tap-key")) {
-                m_player->pushButton(0);
-                m_player->releaseButton(0);
+                this->keyDown(kb.key, 0.0);
+                m_fields->m_autoTapRelease = true;
+                m_fields->m_autoTapReleaseKey = kb.key;
             }
         }
     }
