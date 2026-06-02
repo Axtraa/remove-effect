@@ -57,26 +57,32 @@ class $modify (PlayLayer) {
             return;
         }
 
-        auto currentPct = getCurrentPercent();
+        auto currentPct = m_currentProgress;
         auto targetPct = Mod::get()->getSettingValue<float>("auto-tap-percentage");
 
-        // Normalize if getCurrentPercent returns 0.0-1.0 instead of 0-100
-        if (currentPct <= 1.0f) {
-            currentPct *= 100.0f;
-        }
-
-        if (currentPct >= targetPct && !m_fields->m_autoTapTriggered) {
+        if (!m_fields->m_autoTapTriggered && currentPct >= targetPct) {
             m_fields->m_autoTapTriggered = true;
 
             for (auto& kb : Mod::get()->getSettingValue<std::vector<Keybind>>("auto-tap-key")) {
-                this->keyDown(kb.key, 0.0);
-                this->keyUp(kb.key, 0.0);
+                m_player->pushButton(0);
+                m_player->releaseButton(0);
             }
         }
     }
 
     void visit() {
         if (Mod::get()->getSettingValue<bool>("force-16-9")) {
+            auto view = CCEGLView::sharedOpenGLView();
+            auto frameSize = view->getFrameSize();
+
+            // Clear entire screen to black for letterbox bars
+            glViewport(0, 0, static_cast<GLsizei>(frameSize.width), static_cast<GLsizei>(frameSize.height));
+            GLfloat prevClearColor[4];
+            glGetFloatv(GL_COLOR_CLEAR_VALUE, prevClearColor);
+            glClearColor(0, 0, 0, 1);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glClearColor(prevClearColor[0], prevClearColor[1], prevClearColor[2], prevClearColor[3]);
+
             apply169Viewport();
         }
         PlayLayer::visit();
