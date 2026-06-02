@@ -45,6 +45,28 @@
       "name": "Force 16:9",
       "description": "Forces the game to render in 16:9 aspect ratio while playing",
       "default": false
+    },
+    "auto-tap-enabled": {
+      "type": "bool",
+      "name": "Auto Tap",
+      "description": "Automatically presses a key at a specific level percentage",
+      "default": false
+    },
+    "auto-tap-key": {
+      "type": "int",
+      "name": "Auto Tap Key",
+      "description": "Keycode of the key to press (32=Space, 273=Up, 274=Down)",
+      "default": 32,
+      "min": 0,
+      "max": 65535
+    },
+    "auto-tap-percentage": {
+      "type": "float",
+      "name": "Auto Tap Percentage",
+      "description": "Level percentage to trigger the key press (0-100)",
+      "default": 50.0,
+      "min": 0.0,
+      "max": 100.0
     }
   }
 }
