@@ -18,15 +18,17 @@
 using namespace geode::prelude;
 
 class $modify (PlayLayer) {
-    bool m_autoTapTriggered = false;
+    struct Fields {
+        bool m_autoTapTriggered = false;
+    };
 
     void setupHasCompleted() {
         PlayLayer::setupHasCompleted();
-        m_autoTapTriggered = false;
+        m_fields->m_autoTapTriggered = false;
     }
 
     void resetLevel() {
-        m_autoTapTriggered = false;
+        m_fields->m_autoTapTriggered = false;
         PlayLayer::resetLevel();
     }
 
@@ -51,22 +53,22 @@ class $modify (PlayLayer) {
 
     void handleAutoTap() {
         if (!Mod::get()->getSettingValue<bool>("auto-tap-enabled")) {
-            m_autoTapTriggered = false;
+            m_fields->m_autoTapTriggered = false;
             return;
         }
 
         auto currentPct = getCurrentPercent();
         auto targetPct = Mod::get()->getSettingValue<float>("auto-tap-percentage");
 
-        if (currentPct >= targetPct && !m_autoTapTriggered) {
-            m_autoTapTriggered = true;
+        if (currentPct >= targetPct && !m_fields->m_autoTapTriggered) {
+            m_fields->m_autoTapTriggered = true;
 
             auto keyCode = static_cast<enumKeyCodes>(
                 Mod::get()->getSettingValue<int64_t>("auto-tap-key")
             );
             auto dispatcher = CCDirector::sharedDirector()->getKeyboardDispatcher();
-            dispatcher->dispatchKeyboardMSG(keyCode, true);
-            dispatcher->dispatchKeyboardMSG(keyCode, false);
+            dispatcher->dispatchKeyboardMSG(keyCode, true, false, 0.0);
+            dispatcher->dispatchKeyboardMSG(keyCode, false, false, 0.0);
         }
     }
 
