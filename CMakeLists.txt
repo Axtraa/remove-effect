@@ -19,6 +19,9 @@ else()
     message(STATUS "Found Geode: $ENV{GEODE_SDK}")
 endif()
 
+# Force building Codegen from source to match latest bindings format
+set(SKIP_BUILDING_CODEGEN OFF CACHE BOOL "Build Codegen from source" FORCE)
+
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 
 setup_geode_mod(${PROJECT_NAME})
