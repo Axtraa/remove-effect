@@ -63,12 +63,11 @@ class $modify (PlayLayer) {
         if (currentPct >= targetPct && !m_fields->m_autoTapTriggered) {
             m_fields->m_autoTapTriggered = true;
 
-            auto keyCode = static_cast<enumKeyCodes>(
-                Mod::get()->getSettingValue<int64_t>("auto-tap-key")
-            );
-            auto dispatcher = CCDirector::sharedDirector()->getKeyboardDispatcher();
-            dispatcher->dispatchKeyboardMSG(keyCode, true, false, 0.0);
-            dispatcher->dispatchKeyboardMSG(keyCode, false, false, 0.0);
+            for (auto& kb : Mod::get()->getSettingValue<std::vector<Keybind>>("auto-tap-key")) {
+                auto dispatcher = CCDirector::sharedDirector()->getKeyboardDispatcher();
+                dispatcher->dispatchKeyboardMSG(kb.key, true, false, 0.0);
+                dispatcher->dispatchKeyboardMSG(kb.key, false, false, 0.0);
+            }
         }
     }
 

@@ -53,12 +53,11 @@
       "default": false
     },
     "auto-tap-key": {
-      "type": "int",
+      "type": "keybind",
       "name": "Auto Tap Key",
-      "description": "Keycode of the key to press (32=Space, 273=Up, 274=Down)",
-      "default": 32,
-      "min": 0,
-      "max": 65535
+      "description": "Key to automatically press at the defined percentage",
+      "default": "Space",
+      "category": "gameplay"
     },
     "auto-tap-percentage": {
       "type": "float",
