@@ -63,5 +63,4 @@ build-*/
 .idea/
 /cmake-build-*/
 
-# Qwen
-QWEN.md
+AGENTS.md
