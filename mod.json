@@ -39,6 +39,12 @@
       "name": "No Circles",
       "description": "Disables all circle effects",
       "default": false
+    },
+    "force-16-9": {
+      "type": "bool",
+      "name": "Force 16:9",
+      "description": "Forces the game to render in 16:9 aspect ratio while playing",
+      "default": false
     }
   }
 }

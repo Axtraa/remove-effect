@@ -5,6 +5,14 @@
 #include <Geode/modify/PauseLayer.hpp>
 #include <Geode/ui/GeodeUI.hpp>
 
+#ifdef GEODE_IS_WINDOWS
+    #include <gl/GL.h>
+#elif defined(GEODE_IS_MACOS)
+    #include <OpenGL/gl.h>
+#elif defined(GEODE_IS_ANDROID) || defined(GEODE_IS_IOS)
+    #include <GLES2/gl2.h>
+#endif
+
 using namespace geode::prelude;
 
 class $modify (PlayLayer) {
@@ -23,6 +31,43 @@ class $modify (PlayLayer) {
 
         fmod->m_pulse1 = pulse1;
         m_audioEffectsLayer->m_audioScale = audioScale;
+    }
+
+    void visit() {
+        if (Mod::get()->getSettingValue<bool>("force-16-9")) {
+            apply169Viewport();
+        }
+        PlayLayer::visit();
+        if (Mod::get()->getSettingValue<bool>("force-16-9")) {
+            restoreViewport();
+        }
+    }
+
+    void apply169Viewport() {
+        auto view = CCEGLView::sharedOpenGLView();
+        auto frameSize = view->getFrameSize();
+        constexpr float targetRatio = 16.0f / 9.0f;
+        float currentRatio = frameSize.width / frameSize.height;
+
+        if (std::abs(currentRatio - targetRatio) > 0.005f) {
+            if (currentRatio > targetRatio) {
+                int w = static_cast<int>(frameSize.height * targetRatio);
+                int h = static_cast<int>(frameSize.height);
+                int x = (static_cast<int>(frameSize.width) - w) / 2;
+                glViewport(x, 0, w, h);
+            } else {
+                int w = static_cast<int>(frameSize.width);
+                int h = static_cast<int>(frameSize.width / targetRatio);
+                int y = (static_cast<int>(frameSize.height) - h) / 2;
+                glViewport(0, y, w, h);
+            }
+        }
+    }
+
+    void restoreViewport() {
+        auto view = CCEGLView::sharedOpenGLView();
+        auto frameSize = view->getFrameSize();
+        glViewport(0, 0, static_cast<int>(frameSize.width), static_cast<int>(frameSize.height));
     }
 };
 
