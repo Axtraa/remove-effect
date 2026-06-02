@@ -9,8 +9,10 @@
     #include <gl/GL.h>
 #elif defined(GEODE_IS_MACOS)
     #include <OpenGL/gl.h>
-#elif defined(GEODE_IS_ANDROID) || defined(GEODE_IS_IOS)
+#elif defined(GEODE_IS_ANDROID)
     #include <GLES2/gl2.h>
+#elif defined(GEODE_IS_IOS)
+    #include <OpenGLES/ES2/gl.h>
 #endif
 
 using namespace geode::prelude;
