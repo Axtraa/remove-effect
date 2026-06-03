@@ -9,26 +9,12 @@ using namespace geode::prelude;
 
 class $modify (PlayLayer) {
     struct Fields {
-        // Auto tap state
-        bool m_autoTapTriggered = false;
-        bool m_autoTapRelease = false;
-        enumKeyCodes m_autoTapReleaseKey = KEY_None;
-
-        // 16:9 overlay
         CCNode* m_169overlay = nullptr;
     };
 
     void setupHasCompleted() {
         PlayLayer::setupHasCompleted();
-        m_fields->m_autoTapTriggered = false;
-        m_fields->m_autoTapRelease = false;
         update169Overlay();
-    }
-
-    void resetLevel() {
-        m_fields->m_autoTapTriggered = false;
-        m_fields->m_autoTapRelease = false;
-        PlayLayer::resetLevel();
     }
 
     void remove169Overlay() {
@@ -40,11 +26,14 @@ class $modify (PlayLayer) {
 
     void update169Overlay() {
         remove169Overlay();
-
         if (!Mod::get()->getSettingValue<bool>("force-16-9")) return;
 
-        auto scene = this->getParent();
-        if (!scene) return;
+        // Add overlay bars as children of UILayer at very low z-order:
+        // UILayer renders AFTER PlayLayer in the scene, so the bars cover the level.
+        // With negative z-order, they render BEFORE UILayer's normal children
+        // (buttons, labels, Eclipse overlays, etc.), so the UI stays on top.
+        auto ui = m_uiLayer;
+        if (!ui) return;
 
         auto winSize = CCDirector::sharedDirector()->getWinSize();
         float targetRatio = 16.0f / 9.0f;
@@ -54,6 +43,8 @@ class $modify (PlayLayer) {
 
         auto overlay = CCNode::create();
         overlay->setID("169-overlay"_spr);
+        overlay->setAnchorPoint({0.0f, 0.0f});
+        overlay->setPosition(0.0f, 0.0f);
 
         if (currentRatio > targetRatio) {
             // Screen wider than 16:9 → side bars
@@ -83,7 +74,7 @@ class $modify (PlayLayer) {
             overlay->addChild(bottom);
         }
 
-        scene->addChild(overlay, 999999);
+        ui->addChild(overlay, -999999);
         m_fields->m_169overlay = overlay;
     }
 
@@ -103,7 +94,7 @@ class $modify (PlayLayer) {
         fmod->m_pulse1 = pulse1;
         m_audioEffectsLayer->m_audioScale = audioScale;
 
-        // Handle 16:9 overlay dynamic toggling
+        // Toggle 16:9 overlay dynamically when setting changes
         bool want169 = Mod::get()->getSettingValue<bool>("force-16-9");
         bool has169 = m_fields->m_169overlay != nullptr;
         if (want169 != has169) {
@@ -111,44 +102,6 @@ class $modify (PlayLayer) {
                 update169Overlay();
             else
                 remove169Overlay();
-        }
-
-        // Release auto-tap key on the next frame (via keyboard dispatcher)
-        if (m_fields->m_autoTapRelease) {
-            m_fields->m_autoTapRelease = false;
-            CCKeyboardDispatcher::get()->dispatchKeyboardMSG(
-                m_fields->m_autoTapReleaseKey, false, false, 0.0
-            );
-        }
-
-        handleAutoTap();
-    }
-
-    void handleAutoTap() {
-        if (!Mod::get()->getSettingValue<bool>("auto-tap-enabled")) {
-            m_fields->m_autoTapTriggered = false;
-            return;
-        }
-
-        auto currentPct = getCurrentPercent();
-        auto targetPct = Mod::get()->getSettingValue<float>("auto-tap-percentage");
-
-        // GD's getCurrentPercent() returns 0.0–100.0
-        // But some versions return 0.0–1.0 — normalise if needed
-        if (currentPct <= 1.0f) {
-            currentPct *= 100.0f;
-        }
-
-        if (!m_fields->m_autoTapTriggered && currentPct >= targetPct) {
-            m_fields->m_autoTapTriggered = true;
-
-            for (auto const& kb : Mod::get()->getSettingValue<std::vector<Keybind>>("auto-tap-key")) {
-                CCKeyboardDispatcher::get()->dispatchKeyboardMSG(
-                    kb.key, true, false, 0.0
-                );
-                m_fields->m_autoTapRelease = true;
-                m_fields->m_autoTapReleaseKey = kb.key;
-            }
         }
     }
 };

@@ -6,8 +6,7 @@ Disable certain visual effects in Geometry Dash.
 
 - **No Orb Pulse**: Disables the pulsing effect on orbs
 - **No Circles**: Disables all circle wave effects
-- **Force 16:9**: Forces the game to render in 16:9 aspect ratio while playing
-- **Auto Tap**: Automatically presses a key at a specific level percentage
+- **Force 16:9**: Adds black letterbox bars to display the game in 16:9 aspect ratio
 
 ## Settings
 
