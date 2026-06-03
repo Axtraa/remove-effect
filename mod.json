@@ -45,7 +45,6 @@
       "name": "Force 16:9",
       "description": "Forces the game to render in 16:9 aspect ratio while playing",
       "default": false
-    },
-
+    }
   }
 }
