@@ -20,6 +20,10 @@
     ]
   },
   "settings": {
+    "cat-remove-effect": {
+      "type": "title",
+      "name": "Remove Effects"
+    },
     "no-orb-pulse": {
       "type": "bool",
       "name": "No Orb Pulse",
@@ -40,10 +44,14 @@
       "description": "Disables all circle effects",
       "default": false
     },
+    "cat-force169": {
+      "type": "title",
+      "name": "Force 16:9"
+    },
     "force-16-9": {
       "type": "bool",
       "name": "Force 16:9",
-      "description": "Forces the game to render in 16:9 aspect ratio while playing",
+      "description": "Adds black letterbox bars to display the game in 16:9",
       "default": false
     }
   }
