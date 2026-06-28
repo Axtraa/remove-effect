@@ -22,13 +22,15 @@
   "settings": {
     "cat-auto-click": {
       "type": "title",
-      "name": "Auto Click"
+      "name": "Auto Click",
+      "platforms": ["win", "mac"]
     },
     "auto-click": {
       "type": "bool",
       "name": "Auto Click",
       "description": "Simulate a key press at a certain percentage of the level (useful for muting Discord, etc.)",
-      "default": false
+      "default": false,
+      "platforms": ["win", "mac"]
     },
     "auto-click-percent": {
       "type": "float",
@@ -36,7 +38,8 @@
       "description": "Percentage of the level at which the key will be simulated",
       "default": 50.0,
       "min": 0.0,
-      "max": 100.0
+      "max": 100.0,
+      "platforms": ["win", "mac"]
     },
     "cat-remove-effect": {
       "type": "title",
