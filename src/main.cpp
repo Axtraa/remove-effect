@@ -197,9 +197,8 @@ protected:
         addChild(curLabel);
 
         // close button
-        auto closeLbl = CCLabelBMFont::create("[ CLOSE ]", "goldFont.fnt");
-        closeLbl->setScale(0.45f);
-        auto closeBtn = CCMenuItemLabel::create(closeLbl, this, menu_selector(KeyRecordLayer::onClose));
+        auto closeBtn = CCMenuItemFont::create("CLOSE", this, menu_selector(KeyRecordLayer::onClose));
+        closeBtn->setScale(0.5f);
         auto menu = CCMenu::create(closeBtn, nullptr);
         menu->setPosition({win.width / 2, win.height / 2 - 65});
         addChild(menu);
