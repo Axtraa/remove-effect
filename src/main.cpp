@@ -283,8 +283,8 @@ class $modify (PlayLayer) {
         m_fields->m_autoClickTimer = 0.f;
     }
 
-    void destroyPlayer() {
-        PlayLayer::destroyPlayer();
+    void destroyPlayer(PlayerObject* player, GameObject* object) {
+        PlayLayer::destroyPlayer(player, object);
         // Toggle back on death
         if (Mod::get()->getSettingValue<bool>("auto-click")) {
             std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
