@@ -278,7 +278,14 @@ class $modify (PlayLayer) {
 
     void resetLevel() {
         PlayLayer::resetLevel();
-        // Press key on death/restart (toggle back)
+        m_fields->m_autoClickFired = false;
+        m_fields->m_autoClickVK = 0;
+        m_fields->m_autoClickTimer = 0.f;
+    }
+
+    void destroyPlayer() {
+        PlayLayer::destroyPlayer();
+        // Toggle back on death
         if (Mod::get()->getSettingValue<bool>("auto-click")) {
             std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
             int vk = vkFromKeyName(keyName);
@@ -287,14 +294,11 @@ class $modify (PlayLayer) {
                 simulateKeyRelease(vk);
             }
         }
-        m_fields->m_autoClickFired = false;
-        m_fields->m_autoClickVK = 0;
-        m_fields->m_autoClickTimer = 0.f;
     }
 
     void levelComplete() {
         PlayLayer::levelComplete();
-        // Press key on level end (toggle back)
+        // Toggle back on level end
         if (Mod::get()->getSettingValue<bool>("auto-click")) {
             std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
             int vk = vkFromKeyName(keyName);
