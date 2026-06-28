@@ -318,17 +318,17 @@ class $modify (PlayLayer) {
         // --- Auto Click ---
         if (!m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click") && m_level && m_player1) {
             float playerX = m_player1->getPositionX();
-            float levelLen = m_level->m_levelLength;
-            // Wait until player and level data are ready
+            float levelLen = m_levelLength;
             if (playerX > 0.f && levelLen > 0.f) {
                 float triggerPct = Mod::get()->getSettingValue<float>("auto-click-percent");
-                float currentPct = (playerX / (levelLen * 30.f)) * 100.f;
+                float currentPct = (playerX / levelLen) * 100.f;
                 if (currentPct >= triggerPct) {
                     std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
                     int vk = vkFromKeyName(keyName);
                     if (vk != 0) {
                         simulateKeyPress(vk);
                         simulateKeyRelease(vk);
+                        log::info("[RemoveEffect] AutoClick: fired key='{}' at {:.1f}%", keyName, currentPct);
                         log::info("[RemoveEffect] AutoClick: fired key='{}' at {:.1f}%", keyName, currentPct);
                     }
                     m_fields->m_autoClickFired = true;
