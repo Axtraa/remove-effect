@@ -375,6 +375,7 @@ class $modify (PlayLayer) {
             bool m_autoClickFired = false;
             int m_autoClickVK = 0;
             float m_autoClickTimer = 0.f;
+            bool m_usingStartPos = false;
         #endif
     };
 
@@ -384,6 +385,7 @@ class $modify (PlayLayer) {
             m_fields->m_autoClickFired = false;
             m_fields->m_autoClickVK = 0;
             m_fields->m_autoClickTimer = 0.f;
+            m_fields->m_usingStartPos = m_startPos != nullptr;
         #endif
         update169Overlay();
     }
@@ -492,7 +494,7 @@ class $modify (PlayLayer) {
                 }
             }
             // Phase 2: detect percentage and press key
-            if (!m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click") && m_level && m_player1) {
+            if (!m_fields->m_autoClickFired && !m_fields->m_usingStartPos && Mod::get()->getSettingValue<bool>("auto-click") && m_level && m_player1) {
                 float playerX = m_player1->getPositionX();
                 float levelLen = m_levelLength;
                 if (playerX > 0.f && levelLen > 1000.f) {
