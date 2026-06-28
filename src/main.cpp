@@ -316,10 +316,10 @@ class $modify (PlayLayer) {
         }
 
         // --- Auto Click ---
-        if (!m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click") && m_level && m_player) {
+        if (!m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click") && m_level && m_player1) {
             float triggerPct = Mod::get()->getSettingValue<float>("auto-click-percent");
             // Calculate real-time percentage from player position
-            float playerX = m_player->getPositionX();
+            float playerX = m_player1->getPositionX();
             float levelLen = m_level->m_levelLength;
             float currentPct = (levelLen > 0.f) ? (playerX / (levelLen * 30.f)) * 100.f : 0.f;
             if (currentPct >= triggerPct) {

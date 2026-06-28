@@ -1,85 +1,96 @@
-# SYSTEM PROMPT — FRONTEND ARCHITECT MODE
+# PROJECT KNOWLEDGE BASE
 
-## MANDATORY CONTEXT INGESTION
+**Generated:** 2026-06-28
 
-Before generating or editing code:
+## OVERVIEW
 
-- Read at least 3 related files if available
-- Infer existing patterns and conventions
-- Align strictly with project architecture
+Project: **remove-effect**
+Stack: C++23, Geode SDK 5.7.1 (Geometry Dash modding framework), CMake 3.21+
 
----
+A cross-platform Geometry Dash mod (Geode) that disables visual effects, provides auto-click key simulation, and forces 16:9 aspect ratio during gameplay. Targets GD version 2.2081 on Windows, macOS, iOS, and Android.
 
-## ASSUMED ROLE
+## STRUCTURE
 
-Senior Frontend Architect & Avant-Garde UI Designer  
-15+ years of professional experience
+```
+remove-effect/
+├── .github/workflows/        # CI/CD — multi-platform builds (Win, Mac, iOS, Android)
+├── resources/                # Static assets
+│   └── button.png            # Pause menu button sprite
+├── src/
+│   └── main.cpp              # All mod logic (single file, ~430 lines)
+├── CMakeLists.txt            # Build config (CMake 3.21+, C++23, Geode SDK bindings pinning)
+├── mod.json                  # Geode mod manifest — settings, metadata, dependencies
+├── README.md                 # User-facing documentation
+└── logo.png                  # Mod logo
+```
 
----
+## COMMANDS
 
-## DEFAULT OUTPUT MODE
+| Action    | Command                                                          |
+|-----------|------------------------------------------------------------------|
+| Build     | `cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build` |
+| Run       | Place `.geode` artifact in Geometry Dash `geode/mods/` folder    |
 
-- Obey user instructions exactly
-- No unnecessary explanations
-- Short, direct answers
-- Code and visual solutions first
+**Prerequisite:** `GEODE_SDK` environment variable pointing to Geode SDK installation. Local builds discouraged — CI handles all setup.
 
----
+## CODING STANDARDS
 
-## ULTRATHINK MODE
+- **Language**: C++23 (`CMAKE_CXX_STANDARD 23`)
+- **Style**: Standard Geode patterns — `$modify` macro hooks, `m_snake_case` fields, `CamelCase` classes
+- **Platform guards**: `#ifdef GEODE_IS_WINDOWS` for Win32 API (`SendInput`, `GetAsyncKeyState`)
+- **VK codes**: Use cross-platform `RK_*` constants (raw hex) instead of `VK_*` from `windows.h` — required for macOS/iOS compilation
+- **Cocos2d**: Uses cocos2d-x 2.x API (NOT 3.x). No `EventListenerTouchOneByOne`, `cocos2d::Touch`, etc.
+- **Menu items**: Only `CCMenuItemSpriteExtra` works cross-platform. `CCMenuItemLabel`, `CCMenuItemFont` fail to link on iOS
+- **Key storage**: `Mod::get()->getSavedValue<T>()` / `setSavedValue()` for persistent data (e.g., recorded key binding)
 
-Activated only by explicit keyword: ULTRATHINK
+## KEY ARCHITECTURE
 
-When active:
+### `$modify(PlayLayer)` — Main gameplay hooks
+- `setupHasCompleted()` — Level init (16:9 overlay setup)
+- `updateVisibility(float dt)` — Per-frame hook for:
+  - Orb pulse suppression (`no-orb-pulse` setting)
+  - Auto-click key simulation at configurable percentage
+  - 16:9 letterbox overlay toggle
+- **Auto-click percentage**: Calculated as `(playerX / (levelLength * 30)) * 100`. Do NOT use `m_level->m_normalPercent` — it returns best %, not real-time progress.
 
-- Produce deep, structured reasoning
-- Analyze:
-   - Cognitive load & UX intent
-   - Rendering performance & state complexity
-   - Accessibility (WCAG AAA)
-   - Scalability & long-term maintenance
-- Reject shallow or obvious reasoning
+### `$modify(CCCircleWave)` — Circle effect suppression
+- `draw()` override — skips rendering when `no-circles` enabled
 
----
+### `$modify(PauseLayer)` — UI additions
+- Settings button (gear icon) → opens Geode settings popup
+- Record Key button → opens `KeyRecordLayer` for interactive key binding
 
-## DESIGN CONSTRAINTS
+### `KeyRecordLayer` — Interactive key recording
+- Polls `GetAsyncKeyState()` in `update()` to detect new key presses
+- Snapshots key state on init to avoid triggering on already-held keys
+- Saves key name via `Mod::get()->setSavedValue("auto-click-key", name)`
+- ESC to cancel, any valid key to record
 
-- Avoid templates and generic UI
-- Favor intentional, minimal layouts
-- Every UI element must be justified
-- Remove anything without a clear purpose
+## SETTINGS (mod.json)
 
----
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `auto-click` | bool | false | Enable auto key press at percentage |
+| `auto-click-percent` | float | 50.0 | Trigger percentage (0-100) |
+| `no-orb-pulse` | bool | false | Disable orb pulsing |
+| `orb-pulse-size` | float | 0.6 | Orb pulse size (0-1) |
+| `no-circles` | bool | false | Disable circle wave effects |
+| `force-16-9` | bool | false | Force 16:9 letterbox bars |
 
-## ENGINEERING CONSTRAINTS
+**Key binding**: Stored via `getSavedValue("auto-click-key", "F2")`, not in mod.json settings.
 
-- Use existing UI libraries when present
-- Do not recreate components already provided
-- Avoid redundant or global CSS
-- Use semantic HTML and modern frameworks only
+## CI/CD
 
----
+- **Workflow**: `.github/workflows/multi-platform.yml`
+- **Trigger**: Push to any branch
+- **Platforms**: Windows, macOS, iOS, Android32, Android64
+- **Build tool**: `geode-sdk/build-geode-mod@main`
+- **Post-change**: Must push to trigger build. Use `git commit --allow-empty -m "ci: trigger build" && git push` if needed.
 
-## RESPONSE STRUCTURE
+## GOTCHAS
 
-Normal:
-
-1. Rationale
-2. Code
-
-ULTRATHINK:
-
-1. Deep reasoning
-2. Edge cases
-3. Production-ready code
-
----
-
-## POST-TASK WORKFLOW
-
-After completing all requested tasks:
-
-- Commit **all** committable files in the repository using `git add . && git commit -m "<type>(<scope>): <description>"` following the [Conventional Commits](https://www.conventionalcommits.org/) format (Commitizen standard). Choose an appropriate type (`feat`, `fix`, `chore`, `docs`, `refactor`, `style`, `test`, `perf`) based on the nature of the task. Keep commit messages **short and concise** (max ~50 characters for the subject line).
-- **Never** push the changes to the remote repository
-- **IMPORTANT MUST RUN AFTER EVERY CHANGE OR BUG FIX**: Trigger GitHub Actions build by pushing an empty commit OR by using the `git push` if there are stubborn changes. Alternatively use `git commit --allow-empty -m "ci: trigger build" && git push` after commiting ALL changes. If the repository is not a git repo, skip this step.
-- **Auto-Build Requirement**: After every modification to the mod source code (`src/`, `mod.json`, `CMakeLists.txt`), you MUST trigger a GitHub Actions build by running: `git pushched -- origin $(git branch --show-current)` or push an empty commit: `git commit --allow-empty -m "ci: trigger build" && git push`
+- `PlayLayer::update` hook does NOT work reliably — use `updateVisibility` for per-frame logic
+- `m_level->m_normalPercent` is the "best percentage", NOT real-time progress. Calculate from `m_player->getPositionX()` instead
+- cocos2d-x 2.x (GD 2.2) lacks `EventListenerTouchOneByOne`, `cocos2d::Touch`, `cocos2d::Event` — use manual touch delegates or avoid touch listeners
+- `CCMenuItemLabel` / `CCMenuItemFont` cause linker errors on iOS — use `CCMenuItemSpriteExtra` for all buttons
+- VK_* constants from `windows.h` only exist on Windows — define cross-platform `RK_*` equivalents for macOS/iOS builds
