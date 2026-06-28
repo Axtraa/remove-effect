@@ -151,7 +151,7 @@ protected:
         bool m_prevState[256] = {};
     #endif
 
-    bool init() {
+    bool init() override {
         if (!CCLayerColor::initWithColor({0, 0, 0, 180})) return false;
 
         auto win = CCDirector::sharedDirector()->getWinSize();
@@ -196,19 +196,20 @@ protected:
         #endif
 
         // touch to cancel
-        auto touch = EventListenerTouchOneByOne::create();
+        auto touch = cocos2d::EventListenerTouchOneByOne::create();
         touch->setSwallowTouches(true);
-        touch->onTouchBegan = [this](Touch*, Event*) {
+        touch->onTouchBegan = [this](cocos2d::Touch*, cocos2d::Event*) {
             this->removeFromParentAndCleanup(true);
             return true;
         };
-        eventDispatcher->addEventListenerWithSceneGraphPriority(touch, this);
+        CCDirector::sharedDirector()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(touch, this);
 
         scheduleUpdate();
         return true;
     }
 
-    void update(float) override {
+    void update(float dt) override {
+        CCLayerColor::update(dt);
         #ifdef GEODE_IS_WINDOWS
             for (int k = 1; k < 256; k++) {
                 bool down = (GetAsyncKeyState(k) & 0x8000) != 0;
