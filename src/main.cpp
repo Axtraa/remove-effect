@@ -196,12 +196,12 @@ protected:
         curLabel->setOpacity(140);
         addChild(curLabel);
 
-        // close button
-        auto closeBtn = CCMenuItemFont::create("CLOSE", this, menu_selector(KeyRecordLayer::onClose));
-        closeBtn->setScale(0.5f);
-        auto menu = CCMenu::create(closeBtn, nullptr);
-        menu->setPosition({win.width / 2, win.height / 2 - 65});
-        addChild(menu);
+        // cancel hint
+        auto hint = CCLabelBMFont::create("ESC to cancel", "goldFont.fnt");
+        hint->setScale(0.4f);
+        hint->setPosition({win.width / 2, win.height / 2 - 65});
+        hint->setOpacity(100);
+        addChild(hint);
 
         // snapshot current key state so we only detect NEW presses
         #ifdef GEODE_IS_WINDOWS
@@ -211,10 +211,6 @@ protected:
 
         scheduleUpdate();
         return true;
-    }
-
-    void onClose(CCObject*) {
-        removeFromParentAndCleanup(true);
     }
 
     void update(float dt) override {
@@ -385,7 +381,7 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
         std::string curKey = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
         auto keyLabel = CCLabelBMFont::create(curKey.c_str(), "goldFont.fnt");
         keyLabel->setScale(0.55f);
-        auto keyBtn = CCMenuItemLabel::create(
+        auto keyBtn = CCMenuItemSpriteExtra::create(
             keyLabel, this,
             menu_selector(RemoveEffectPauseLayer::onRecordKey)
         );
