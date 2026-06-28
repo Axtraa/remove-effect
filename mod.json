@@ -38,12 +38,6 @@
       "min": 0.0,
       "max": 100.0
     },
-    "auto-click-key": {
-      "type": "string",
-      "name": "Key",
-      "description": "The key to simulate (e.g. F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, A, B, C, etc.)",
-      "default": "F2"
-    },
     "cat-remove-effect": {
       "type": "title",
       "name": "Remove Effects"
