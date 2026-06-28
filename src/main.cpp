@@ -305,14 +305,6 @@ class $modify (PlayLayer) {
     }
 
     virtual void updateVisibility(float dt) {
-        // Debug: log once to confirm hook fires
-        static bool s_loggedOnce = false;
-        if (!s_loggedOnce) {
-            log::info("[RemoveEffect] updateVisibility called! auto-click={} m_level={} m_player1={}",
-                Mod::get()->getSettingValue<bool>("auto-click"), (void*)m_level, (void*)m_player1);
-            s_loggedOnce = true;
-        }
-
         auto* fmod = FMODAudioEngine::get();
         auto pulse1 = fmod->m_pulse1;
         auto audioScale = m_audioEffectsLayer->m_audioScale;
@@ -325,27 +317,22 @@ class $modify (PlayLayer) {
 
         // --- Auto Click ---
         if (!m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click") && m_level && m_player1) {
-            float triggerPct = Mod::get()->getSettingValue<float>("auto-click-percent");
-            // Calculate real-time percentage from player position
             float playerX = m_player1->getPositionX();
             float levelLen = m_level->m_levelLength;
-            float currentPct = (levelLen > 0.f) ? (playerX / (levelLen * 30.f)) * 100.f : 0.f;
-
-            static bool s_pctLogged = false;
-            if (!s_pctLogged) {
-                log::info("[RemoveEffect] AutoClick check: playerX={:.1f} levelLen={:.1f} currentPct={:.2f}% triggerPct={:.1f}%", playerX, levelLen, currentPct, triggerPct);
-                s_pctLogged = true;
-            }
-
-            if (currentPct >= triggerPct) {
-                std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
-                int vk = vkFromKeyName(keyName);
-                if (vk != 0) {
-                    simulateKeyPress(vk);
-                    simulateKeyRelease(vk);
-                    log::info("[RemoveEffect] AutoClick: fired key='{}' at {:.1f}% (playerX={:.0f} levelLen={:.0f})", keyName, currentPct, playerX, levelLen);
+            // Wait until player and level data are ready
+            if (playerX > 0.f && levelLen > 0.f) {
+                float triggerPct = Mod::get()->getSettingValue<float>("auto-click-percent");
+                float currentPct = (playerX / (levelLen * 30.f)) * 100.f;
+                if (currentPct >= triggerPct) {
+                    std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
+                    int vk = vkFromKeyName(keyName);
+                    if (vk != 0) {
+                        simulateKeyPress(vk);
+                        simulateKeyRelease(vk);
+                        log::info("[RemoveEffect] AutoClick: fired key='{}' at {:.1f}%", keyName, currentPct);
+                    }
+                    m_fields->m_autoClickFired = true;
                 }
-                m_fields->m_autoClickFired = true;
             }
         }
 
