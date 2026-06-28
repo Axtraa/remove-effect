@@ -157,7 +157,7 @@ protected:
         auto win = CCDirector::sharedDirector()->getWinSize();
         setContentSize(win);
 
-        // --- panel ---
+        // --- panel background ---
         auto panel = CCLayerColor::create({25, 25, 25, 230}, 340, 220);
         panel->setPosition({(win.width - 340) / 2.f, (win.height - 220) / 2.f});
         addChild(panel);
@@ -182,12 +182,13 @@ protected:
         curLabel->setOpacity(140);
         addChild(curLabel);
 
-        // cancel hint
-        auto hint = CCLabelBMFont::create("ESC to cancel", "goldFont.fnt");
-        hint->setScale(0.35f);
-        hint->setPosition({win.width / 2, win.height / 2 - 60});
-        hint->setOpacity(90);
-        addChild(hint);
+        // close button
+        auto closeLbl = CCLabelBMFont::create("[ CLOSE ]", "goldFont.fnt");
+        closeLbl->setScale(0.45f);
+        auto closeBtn = CCMenuItemLabel::create(closeLbl, this, menu_selector(KeyRecordLayer::onClose));
+        auto menu = CCMenu::create(closeBtn, nullptr);
+        menu->setPosition({win.width / 2, win.height / 2 - 65});
+        addChild(menu);
 
         // snapshot current key state so we only detect NEW presses
         #ifdef GEODE_IS_WINDOWS
@@ -195,17 +196,12 @@ protected:
                 m_prevState[i] = (GetAsyncKeyState(i) & 0x8000) != 0;
         #endif
 
-        // touch to cancel
-        auto touch = cocos2d::EventListenerTouchOneByOne::create();
-        touch->setSwallowTouches(true);
-        touch->onTouchBegan = [this](cocos2d::Touch*, cocos2d::Event*) {
-            this->removeFromParentAndCleanup(true);
-            return true;
-        };
-        CCDirector::sharedDirector()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(touch, this);
-
         scheduleUpdate();
         return true;
+    }
+
+    void onClose(CCObject*) {
+        removeFromParentAndCleanup(true);
     }
 
     void update(float dt) override {
