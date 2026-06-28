@@ -581,6 +581,17 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
             );
             keyBtn->setID("remove-effect-record-key-btn"_spr);
             menu->addChild(keyBtn);
+        #else
+            // Mobile: show auto-click unavailable indicator
+            auto naLabel = CCLabelBMFont::create("Key: N/A", "goldFont.fnt");
+            naLabel->setScale(0.5f);
+            naLabel->setOpacity(100);
+            auto naBtn = CCMenuItemSpriteExtra::create(
+                naLabel, this,
+                menu_selector(RemoveEffectPauseLayer::onOpenSettings)
+            );
+            naBtn->setID("remove-effect-record-key-btn"_spr);
+            menu->addChild(naBtn);
         #endif
 
         menu->updateLayout();
