@@ -2,7 +2,7 @@
     #include <windows.h>
 #endif
 #ifdef GEODE_IS_MACOS
-    #include <ApplicationServices/ApplicationServices.h>
+    #include <CoreGraphics/CoreGraphics.h>
 #endif
 
 #include <Geode/Geode.hpp>
