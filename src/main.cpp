@@ -378,6 +378,11 @@ class $modify (PlayLayer) {
         if (!m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click") && m_level && m_player1) {
             float playerX = m_player1->getPositionX();
             float levelLen = m_levelLength;
+            static int s_logCount = 0;
+            if (s_logCount < 5) {
+                log::info("[RemoveEffect] AutoClick: playerX={:.1f} levelLen={:.1f} fired={}", playerX, levelLen, m_fields->m_autoClickFired);
+                s_logCount++;
+            }
             if (playerX > 0.f && levelLen > 1000.f) {
                 float triggerPct = Mod::get()->getSettingValue<float>("auto-click-percent");
                 float currentPct = (playerX / levelLen) * 100.f;
