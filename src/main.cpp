@@ -285,8 +285,8 @@ class $modify (PlayLayer) {
 
     void destroyPlayer(PlayerObject* player, GameObject* object) {
         PlayLayer::destroyPlayer(player, object);
-        // Toggle back on death
-        if (Mod::get()->getSettingValue<bool>("auto-click")) {
+        // Toggle back on death only if we had muted
+        if (m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click")) {
             std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
             int vk = vkFromKeyName(keyName);
             if (vk != 0) {
@@ -298,8 +298,8 @@ class $modify (PlayLayer) {
 
     void levelComplete() {
         PlayLayer::levelComplete();
-        // Toggle back on level end
-        if (Mod::get()->getSettingValue<bool>("auto-click")) {
+        // Toggle back on level end only if we had muted
+        if (m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click")) {
             std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
             int vk = vkFromKeyName(keyName);
             if (vk != 0) {
@@ -378,11 +378,6 @@ class $modify (PlayLayer) {
         if (!m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click") && m_level && m_player1) {
             float playerX = m_player1->getPositionX();
             float levelLen = m_levelLength;
-            static int s_logCount = 0;
-            if (s_logCount < 5) {
-                log::info("[RemoveEffect] AutoClick: playerX={:.1f} levelLen={:.1f} fired={}", playerX, levelLen, m_fields->m_autoClickFired);
-                s_logCount++;
-            }
             if (playerX > 0.f && levelLen > 1000.f) {
                 float triggerPct = Mod::get()->getSettingValue<float>("auto-click-percent");
                 float currentPct = (playerX / levelLen) * 100.f;
