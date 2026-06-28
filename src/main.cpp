@@ -1,3 +1,7 @@
+#ifdef GEODE_IS_WINDOWS
+    #include <windows.h>
+#endif
+
 #include <Geode/Geode.hpp>
 #include <Geode/loader/SettingV3.hpp>
 #include <Geode/modify/PlayLayer.hpp>
@@ -7,9 +11,30 @@
 
 using namespace geode::prelude;
 
+static void simulateKeyPress(int vkCode) {
+    #ifdef GEODE_IS_WINDOWS
+        INPUT input = {};
+        input.type = INPUT_KEYBOARD;
+        input.ki.wVk = static_cast<WORD>(vkCode);
+        input.ki.dwFlags = 0;
+        SendInput(1, &input, sizeof(INPUT));
+    #endif
+}
+
+static void simulateKeyRelease(int vkCode) {
+    #ifdef GEODE_IS_WINDOWS
+        INPUT input = {};
+        input.type = INPUT_KEYBOARD;
+        input.ki.wVk = static_cast<WORD>(vkCode);
+        input.ki.dwFlags = KEYEVENTF_KEYUP;
+        SendInput(1, &input, sizeof(INPUT));
+    #endif
+}
+
 class $modify (PlayLayer) {
     struct Fields {
         CCNode* m_169overlay = nullptr;
+        bool m_muteKeyPressed = false;
     };
 
     void setupHasCompleted() {
@@ -89,7 +114,21 @@ class $modify (PlayLayer) {
             m_audioEffectsLayer->m_audioScale = orbPulseSize;
         }
 
+        // Discord mute key simulation based on level percentage
+        if (Mod::get()->getSettingValue<bool>("discord-mute")) {
+            float triggerPercent = Mod::get()->getSettingValue<float>("discord-mute-percent");
+            int keyCode = Mod::get()->getSettingValue<int>("discord-mute-key");
+            float currentPercent = m_level->m_normalPercent;
+            
+            if (currentPercent >= triggerPercent && !m_fields->m_muteKeyPressed) {
+                simulateKeyPress(keyCode);
+                simulateKeyRelease(keyCode);
+                m_fields->m_muteKeyPressed = true;
+            }
+        }
+
         PlayLayer::updateVisibility(dt);
+
 
         fmod->m_pulse1 = pulse1;
         m_audioEffectsLayer->m_audioScale = audioScale;
