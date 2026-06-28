@@ -136,11 +136,22 @@ static int vkFromKeyName(const std::string& name) {
 //  Windows key simulation
 // ============================================================
 
+// Check if a VK code is an extended key (needs KEYEVENTF_EXTENDEDKEY)
+static bool isExtendedKey(int vk) {
+    return (vk == 0x2D || vk == 0x2E || // Insert, Delete
+            vk == 0x24 || vk == 0x23 || // Home, End
+            vk == 0x21 || vk == 0x22 || // PageUp, PageDown
+            (vk >= 0x25 && vk <= 0x28) || // Arrow keys
+            vk == 0xA1 || vk == 0xA3 || vk == 0xA5 || // RShift, RCtrl, RAlt
+            (vk >= 0x60 && vk <= 0x6F)); // Numpad
+}
+
 static void simulateKeyPress(int vkCode) {
     #ifdef GEODE_IS_WINDOWS
         INPUT input{};
         input.type = INPUT_KEYBOARD;
         input.ki.wVk = static_cast<WORD>(vkCode);
+        if (isExtendedKey(vkCode)) input.ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
         SendInput(1, &input, sizeof(INPUT));
     #endif
 }
@@ -151,6 +162,7 @@ static void simulateKeyRelease(int vkCode) {
         input.type = INPUT_KEYBOARD;
         input.ki.wVk = static_cast<WORD>(vkCode);
         input.ki.dwFlags = KEYEVENTF_KEYUP;
+        if (isExtendedKey(vkCode)) input.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
         SendInput(1, &input, sizeof(INPUT));
     #endif
 }
@@ -339,7 +351,7 @@ class $modify (PlayLayer) {
                     if (vk != 0) {
                         simulateKeyPress(vk);
                         m_fields->m_autoClickVK = vk;
-                        m_fields->m_autoClickDelay = 10; // ~40ms at 240fps
+                        m_fields->m_autoClickDelay = 30; // ~125ms at 240fps
                         log::info("[RemoveEffect] AutoClick: pressed key='{}' at {:.1f}%", keyName, currentPct);
                     }
                     m_fields->m_autoClickFired = true;
