@@ -252,6 +252,8 @@ class $modify (PlayLayer) {
     struct Fields {
         CCNode* m_169overlay = nullptr;
         bool m_autoClickFired = false;
+        int m_autoClickVK = 0;
+        int m_autoClickDelay = 0;
     };
 
     void setupHasCompleted() {
@@ -316,6 +318,15 @@ class $modify (PlayLayer) {
         }
 
         // --- Auto Click ---
+        // Phase 1: release key after delay
+        if (m_fields->m_autoClickVK != 0 && m_fields->m_autoClickDelay > 0) {
+            if (--m_fields->m_autoClickDelay == 0) {
+                simulateKeyRelease(m_fields->m_autoClickVK);
+                log::info("[RemoveEffect] AutoClick: released key vk={}", m_fields->m_autoClickVK);
+                m_fields->m_autoClickVK = 0;
+            }
+        }
+        // Phase 2: detect percentage and press key
         if (!m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click") && m_level && m_player1) {
             float playerX = m_player1->getPositionX();
             float levelLen = m_levelLength;
@@ -327,9 +338,9 @@ class $modify (PlayLayer) {
                     int vk = vkFromKeyName(keyName);
                     if (vk != 0) {
                         simulateKeyPress(vk);
-                        simulateKeyRelease(vk);
-                        log::info("[RemoveEffect] AutoClick: fired key='{}' at {:.1f}%", keyName, currentPct);
-                        log::info("[RemoveEffect] AutoClick: fired key='{}' at {:.1f}%", keyName, currentPct);
+                        m_fields->m_autoClickVK = vk;
+                        m_fields->m_autoClickDelay = 10; // ~40ms at 240fps
+                        log::info("[RemoveEffect] AutoClick: pressed key='{}' at {:.1f}%", keyName, currentPct);
                     }
                     m_fields->m_autoClickFired = true;
                 }
