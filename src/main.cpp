@@ -176,6 +176,18 @@ static int vkToMacKey(int vk) {
 }
 #endif
 
+#ifdef GEODE_IS_WINDOWS
+// Check if a VK code is an extended key (needs KEYEVENTF_EXTENDEDKEY)
+static bool isExtendedKey(int vk) {
+    return (vk == 0x2D || vk == 0x2E || // Insert, Delete
+            vk == 0x24 || vk == 0x23 || // Home, End
+            vk == 0x21 || vk == 0x22 || // PageUp, PageDown
+            (vk >= 0x25 && vk <= 0x28) || // Arrow keys
+            vk == 0xA1 || vk == 0xA3 || vk == 0xA5 || // RShift, RCtrl, RAlt
+            (vk >= 0x60 && vk <= 0x6F)); // Numpad
+}
+#endif
+
 static void simulateKeyPress(int vkCode) {
     #ifdef GEODE_IS_WINDOWS
         INPUT input{};
