@@ -308,6 +308,14 @@ class $modify (PlayLayer) {
     virtual void update(float dt) {
         PlayLayer::update(dt);
 
+        // Debug: log once to verify hook works
+        static bool s_logged = false;
+        if (!s_logged) {
+            log::info("[RemoveEffect] update() called, auto-click={}",
+                Mod::get()->getSettingValue<bool>("auto-click"));
+            s_logged = true;
+        }
+
         if (m_fields->m_autoClickFired) return;
         if (!Mod::get()->getSettingValue<bool>("auto-click")) return;
         if (!m_level) return;
