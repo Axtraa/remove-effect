@@ -173,11 +173,13 @@ static void simulateKeyRelease(int vkCode) {
 
 class KeyRecordLayer : public CCLayerColor {
 protected:
+    CCLabelBMFont* m_keyLabel = nullptr;
     #ifdef GEODE_IS_WINDOWS
         bool m_prevState[256] = {};
     #endif
 
-    bool init() override {
+    bool init(CCLabelBMFont* keyLabel) {
+        m_keyLabel = keyLabel;
         if (!CCLayerColor::initWithColor({0, 0, 0, 180})) return false;
 
         auto win = CCDirector::sharedDirector()->getWinSize();
@@ -238,6 +240,7 @@ protected:
                     std::string name = keyNameFromVK(k);
                     if (!name.empty()) {
                         Mod::get()->setSavedValue("auto-click-key", name);
+                        if (m_keyLabel) m_keyLabel->setString(name.c_str());
                         removeFromParentAndCleanup(true);
                         return;
                     }
@@ -252,9 +255,9 @@ public:
         removeFromParentAndCleanup(true);
     }
 
-    static KeyRecordLayer* create() {
+    static KeyRecordLayer* create(CCLabelBMFont* keyLabel = nullptr) {
         auto* ret = new KeyRecordLayer();
-        if (ret && ret->init()) { ret->autorelease(); return ret; }
+        if (ret && ret->init(keyLabel)) { ret->autorelease(); return ret; }
         CC_SAFE_DELETE(ret);
         return nullptr;
     }
@@ -427,6 +430,10 @@ class $modify (CCCircleWave) {
 // ============================================================
 
 class $modify (RemoveEffectPauseLayer, PauseLayer) {
+    struct Fields {
+        CCLabelBMFont* m_keyLabel = nullptr;
+    };
+
     void customSetup() {
         PauseLayer::customSetup();
 
@@ -449,6 +456,7 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
         std::string curKey = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
         auto keyLabel = CCLabelBMFont::create(curKey.c_str(), "goldFont.fnt");
         keyLabel->setScale(0.55f);
+        m_fields->m_keyLabel = keyLabel;
         auto keyBtn = CCMenuItemSpriteExtra::create(
             keyLabel, this,
             menu_selector(RemoveEffectPauseLayer::onRecordKey)
@@ -465,6 +473,6 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
 
     void onRecordKey(CCObject*) {
         auto scene = CCDirector::sharedDirector()->getRunningScene();
-        if (scene) scene->addChild(KeyRecordLayer::create(), 999);
+        if (scene) scene->addChild(KeyRecordLayer::create(m_fields->m_keyLabel), 999);
     }
 };
