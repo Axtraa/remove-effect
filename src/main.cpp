@@ -543,8 +543,6 @@ class $modify (CCCircleWave) {
 // ============================================================
 //  PauseLayer  –  settings button + key-record button
 // ============================================================
-
-class $modify (RemoveEffectPauseLayer, PauseLayer) {
     struct Fields {
         #if defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
             CCLabelBMFont* m_keyLabel = nullptr;
@@ -587,21 +585,6 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
     }
 
     void onOpenSettings(CCObject*) {
-        #if !defined(GEODE_IS_WINDOWS) && !defined(GEODE_IS_MACOS)
-            // Force auto-click off on mobile
-            if (Mod::get()->getSettingValue<bool>("auto-click")) {
-                Mod::get()->setSettingValue("auto-click", false);
-                auto scene = CCDirector::sharedDirector()->getRunningScene();
-                if (scene) {
-                    auto alert = FLAlertLayer::create(
-                        "Auto Click",
-                        "Auto Click is not available on mobile.",
-                        "OK"
-                    );
-                    alert->show();
-                }
-            }
-        #endif
         openSettingsPopup(Mod::get());
     }
 
