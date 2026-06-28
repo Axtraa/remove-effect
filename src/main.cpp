@@ -11,6 +11,64 @@
 
 using namespace geode::prelude;
 
+static int vkFromString(const std::string& key) {
+    std::string upper = key;
+    for (auto& c : upper) c = static_cast<char>(std::toupper(c));
+
+    if (upper == "F1") return VK_F1;
+    if (upper == "F2") return VK_F2;
+    if (upper == "F3") return VK_F3;
+    if (upper == "F4") return VK_F4;
+    if (upper == "F5") return VK_F5;
+    if (upper == "F6") return VK_F6;
+    if (upper == "F7") return VK_F7;
+    if (upper == "F8") return VK_F8;
+    if (upper == "F9") return VK_F9;
+    if (upper == "F10") return VK_F10;
+    if (upper == "F11") return VK_F11;
+    if (upper == "F12") return VK_F12;
+
+    if (upper == "A") return 'A';
+    if (upper == "B") return 'B';
+    if (upper == "C") return 'C';
+    if (upper == "D") return 'D';
+    if (upper == "E") return 'E';
+    if (upper == "F") return 'F';
+    if (upper == "G") return 'G';
+    if (upper == "H") return 'H';
+    if (upper == "I") return 'I';
+    if (upper == "J") return 'J';
+    if (upper == "K") return 'K';
+    if (upper == "L") return 'L';
+    if (upper == "M") return 'M';
+    if (upper == "N") return 'N';
+    if (upper == "O") return 'O';
+    if (upper == "P") return 'P';
+    if (upper == "Q") return 'Q';
+    if (upper == "R") return 'R';
+    if (upper == "S") return 'S';
+    if (upper == "T") return 'T';
+    if (upper == "U") return 'U';
+    if (upper == "V") return 'V';
+    if (upper == "W") return 'W';
+    if (upper == "X") return 'X';
+    if (upper == "Y") return 'Y';
+    if (upper == "Z") return 'Z';
+
+    if (upper == "0") return '0';
+    if (upper == "1") return '1';
+    if (upper == "2") return '2';
+    if (upper == "3") return '3';
+    if (upper == "4") return '4';
+    if (upper == "5") return '5';
+    if (upper == "6") return '6';
+    if (upper == "7") return '7';
+    if (upper == "8") return '8';
+    if (upper == "9") return '9';
+
+    return 0;
+}
+
 static void simulateKeyPress(int vkCode) {
     #ifdef GEODE_IS_WINDOWS
         INPUT input = {};
@@ -34,7 +92,7 @@ static void simulateKeyRelease(int vkCode) {
 class $modify (PlayLayer) {
     struct Fields {
         CCNode* m_169overlay = nullptr;
-        bool m_muteKeyPressed = false;
+        bool m_autoClickKeyPressed = false;
     };
 
     void setupHasCompleted() {
@@ -114,16 +172,17 @@ class $modify (PlayLayer) {
             m_audioEffectsLayer->m_audioScale = orbPulseSize;
         }
 
-        // Discord mute key simulation based on level percentage
-        if (Mod::get()->getSettingValue<bool>("discord-mute")) {
-            float triggerPercent = Mod::get()->getSettingValue<float>("discord-mute-percent");
-            int keyCode = Mod::get()->getSettingValue<int>("discord-mute-key");
+        // Auto Click: simulate key press at certain level percentage
+        if (Mod::get()->getSettingValue<bool>("auto-click")) {
+            float triggerPercent = Mod::get()->getSettingValue<float>("auto-click-percent");
+            std::string keyStr = Mod::get()->getSettingValue<std::string>("auto-click-key");
+            int keyCode = vkFromString(keyStr);
             float currentPercent = m_level->m_normalPercent;
             
-            if (currentPercent >= triggerPercent && !m_fields->m_muteKeyPressed) {
+            if (keyCode != 0 && currentPercent >= triggerPercent && !m_fields->m_autoClickKeyPressed) {
                 simulateKeyPress(keyCode);
                 simulateKeyRelease(keyCode);
-                m_fields->m_muteKeyPressed = true;
+                m_fields->m_autoClickKeyPressed = true;
             }
         }
 

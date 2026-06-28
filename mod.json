@@ -20,31 +20,29 @@
     ]
   },
   "settings": {
-    "cat-discord-mute": {
+    "cat-auto-click": {
       "type": "title",
-      "name": "Discord Mute"
+      "name": "Auto Click"
     },
-    "discord-mute": {
+    "auto-click": {
       "type": "bool",
-      "name": "Auto Discord Mute",
-      "description": "Simule un appui de touche à un certain % du niveau (utile pour muter Discord)",
+      "name": "Auto Click",
+      "description": "Simulate a key press at a certain percentage of the level (useful for muting Discord, etc.)",
       "default": false
     },
-    "discord-mute-percent": {
+    "auto-click-percent": {
       "type": "float",
       "name": "Trigger Percent",
-      "description": "Pourcentage du niveau à partir duquel la touche sera simulée",
+      "description": "Percentage of the level at which the key will be simulated",
       "default": 50.0,
       "min": 0.0,
       "max": 100.0
     },
-    "discord-mute-key": {
-      "type": "int",
-      "name": "Virtual Key Code",
-      "description": "Code de la touche (VK) à simuler. Ex: 113=F2, 114=F3, 115=F4, 118=F7. Full list: learn.microsoft.com/windows/win32/inputdev/virtual-key-codes",
-      "default": 113,
-      "min": 1,
-      "max": 255
+    "auto-click-key": {
+      "type": "string",
+      "name": "Key",
+      "description": "The key to simulate (e.g. F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, A, B, C, etc.)",
+      "default": "F2"
     },
     "cat-remove-effect": {
       "type": "title",
