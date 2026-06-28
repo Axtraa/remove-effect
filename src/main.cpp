@@ -1,6 +1,9 @@
 #ifdef GEODE_IS_WINDOWS
     #include <windows.h>
 #endif
+#ifdef GEODE_IS_MACOS
+    #include <ApplicationServices/ApplicationServices.h>
+#endif
 
 #include <Geode/Geode.hpp>
 #include <Geode/loader/SettingV3.hpp>
@@ -11,7 +14,7 @@
 
 using namespace geode::prelude;
 
-#ifdef GEODE_IS_WINDOWS
+#if defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
 // ============================================================
 //  Key name ↔ Windows Virtual-Key code conversion
 // ============================================================
@@ -134,18 +137,44 @@ static int vkFromKeyName(const std::string& name) {
 }
 
 // ============================================================
-//  Windows key simulation
+//  Key simulation (cross-platform)
 // ============================================================
 
-// Check if a VK code is an extended key (needs KEYEVENTF_EXTENDEDKEY)
-static bool isExtendedKey(int vk) {
-    return (vk == 0x2D || vk == 0x2E || // Insert, Delete
-            vk == 0x24 || vk == 0x23 || // Home, End
-            vk == 0x21 || vk == 0x22 || // PageUp, PageDown
-            (vk >= 0x25 && vk <= 0x28) || // Arrow keys
-            vk == 0xA1 || vk == 0xA3 || vk == 0xA5 || // RShift, RCtrl, RAlt
-            (vk >= 0x60 && vk <= 0x6F)); // Numpad
+#ifdef GEODE_IS_MACOS
+// Map Windows VK codes to Mac key codes
+static int vkToMacKey(int vk) {
+    switch (vk) {
+        case 0x41: return 0x00; case 0x42: return 0x0B; case 0x43: return 0x08;
+        case 0x44: return 0x02; case 0x45: return 0x0E; case 0x46: return 0x03;
+        case 0x47: return 0x05; case 0x48: return 0x04; case 0x49: return 0x22;
+        case 0x4A: return 0x26; case 0x4B: return 0x28; case 0x4C: return 0x25;
+        case 0x4D: return 0x2E; case 0x4E: return 0x2D; case 0x4F: return 0x1F;
+        case 0x50: return 0x23; case 0x51: return 0x0C; case 0x52: return 0x0F;
+        case 0x53: return 0x01; case 0x54: return 0x11; case 0x55: return 0x20;
+        case 0x56: return 0x09; case 0x57: return 0x0D; case 0x58: return 0x07;
+        case 0x59: return 0x10; case 0x5A: return 0x06;
+        case 0x30: return 0x1D; case 0x31: return 0x12; case 0x32: return 0x13;
+        case 0x33: return 0x14; case 0x34: return 0x15; case 0x35: return 0x17;
+        case 0x36: return 0x16; case 0x37: return 0x1A; case 0x38: return 0x1C;
+        case 0x39: return 0x19;
+        case 0x20: return 0x31; case 0x0D: return 0x24; case 0x09: return 0x30;
+        case 0x08: return 0x33; case 0x2E: return 0x75; case 0x2D: return 0x72;
+        case 0x1B: return 0x35; case 0x24: return 0x73; case 0x23: return 0x77;
+        case 0x21: return 0x74; case 0x22: return 0x79;
+        case 0x26: return 0x7E; case 0x28: return 0x7D;
+        case 0x25: return 0x7B; case 0x27: return 0x7C;
+        case 0xA0: return 0x38; case 0xA1: return 0x3C;
+        case 0xA2: return 0x3B; case 0xA3: return 0x3E;
+        case 0xA4: return 0x3A; case 0xA5: return 0x3D;
+        case 0x14: return 0x39;
+        case 0x70: return 0x7A; case 0x71: return 0x78; case 0x72: return 0x63;
+        case 0x73: return 0x76; case 0x74: return 0x60; case 0x75: return 0x61;
+        case 0x76: return 0x62; case 0x77: return 0x64; case 0x78: return 0x65;
+        case 0x79: return 0x6D; case 0x7A: return 0x67; case 0x7B: return 0x6F;
+        default: return -1;
+    }
 }
+#endif
 
 static void simulateKeyPress(int vkCode) {
     #ifdef GEODE_IS_WINDOWS
@@ -154,6 +183,13 @@ static void simulateKeyPress(int vkCode) {
         input.ki.wVk = static_cast<WORD>(vkCode);
         if (isExtendedKey(vkCode)) input.ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
         SendInput(1, &input, sizeof(INPUT));
+    #endif
+    #ifdef GEODE_IS_MACOS
+        int macKey = vkToMacKey(vkCode);
+        if (macKey < 0) return;
+        CGEventRef event = CGEventCreateKeyboardEvent(NULL, macKey, true);
+        CGEventPost(kCGHIDEventTap, event);
+        CFRelease(event);
     #endif
 }
 
@@ -166,6 +202,13 @@ static void simulateKeyRelease(int vkCode) {
         if (isExtendedKey(vkCode)) input.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
         SendInput(1, &input, sizeof(INPUT));
     #endif
+    #ifdef GEODE_IS_MACOS
+        int macKey = vkToMacKey(vkCode);
+        if (macKey < 0) return;
+        CGEventRef event = CGEventCreateKeyboardEvent(NULL, macKey, false);
+        CGEventPost(kCGHIDEventTap, event);
+        CFRelease(event);
+    #endif
 }
 
 // ============================================================
@@ -177,6 +220,9 @@ protected:
     CCLabelBMFont* m_keyLabel = nullptr;
     #ifdef GEODE_IS_WINDOWS
         bool m_prevState[256] = {};
+    #endif
+    #ifdef GEODE_IS_MACOS
+        bool m_prevState[128] = {};
     #endif
 
     bool init(CCLabelBMFont* keyLabel) {
@@ -227,6 +273,10 @@ protected:
             for (int i = 0; i < 256; i++)
                 m_prevState[i] = (GetAsyncKeyState(i) & 0x8000) != 0;
         #endif
+        #ifdef GEODE_IS_MACOS
+            for (int i = 0; i < 128; i++)
+                m_prevState[i] = CGEventSourceKeyState(kCGEventSourceStateHIDSystemState, i);
+        #endif
 
         scheduleUpdate();
         return true;
@@ -249,6 +299,43 @@ protected:
                 m_prevState[k] = down;
             }
         #endif
+        #ifdef GEODE_IS_MACOS
+            // Map Mac key codes back to Windows VK codes for keyNameFromVK
+            static const int macToVk[128] = {
+                0x41,0x53,0x44,0x46,0x48,0x47,0x5A,0x58, // 0x00-0x07: A,S,D,F,H,G,Z,X
+                0x43,0x56,0x00,0x42,0x51,0x57,0x45,0x52, // 0x08-0x0F: C,V,_,B,Q,W,E,R
+                0x59,0x54,0x31,0x32,0x33,0x34,0x36,0x35, // 0x10-0x17: Y,T,1,2,3,4,6,5
+                0x39,0x37,0x2D,0x30,0x50,0x4C,0x4A,0x4B, // 0x18-0x1F: =,9,_,0,P,L,J,K
+                0x4F,0x49,0x00,0x4E,0x4D,0x4F,0x4E,0x00, // 0x20-0x27: O,I,_,N,M,_,_,_
+                0x20,0x08,0x00,0x1B,0x00,0x00,0x00,0x00, // 0x28-0x2F: Space,Delete,_,Esc,_,_,_,_
+                0x00,0x31,0x00,0x32,0x00,0x33,0x34,0x36, // 0x30-0x37: _,1,_,2,_,3,4,6
+                0x35,0x00,0x2D,0x00,0x37,0x00,0x00,0x00, // 0x38-0x3F: 5,_,=,_,7,_,_,_
+                0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // 0x40-0x47: _,_,_,_,_,_,_,_
+                0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // 0x48-0x4F: _,_,_,_,_,_,_,_
+                0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // 0x50-0x57: _,_,_,_,_,_,_,_
+                0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // 0x58-0x5F: _,_,_,_,_,_,_,_
+                0x74,0x73,0x75,0x77,0x7B,0x7C,0x7D,0x7E, // 0x60-0x67: F5,F3,F6,F4,F11,F12,F13,F14
+                0x00,0x79,0x00,0x76,0x60,0x61,0x62,0x63, // 0x68-0x6F: _,F10,_,F8,F1,F2,F3,F4
+                0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // 0x70-0x77: _,_,_,_,_,_,_,_
+                0x7E,0x00,0x77,0x00,0x3F,0x7F,0x00,0x00, // 0x78-0x7F: Up,_,Down,_,F7,Right,_,_
+            };
+            for (int k = 0; k < 128; k++) {
+                bool down = CGEventSourceKeyState(kCGEventSourceStateHIDSystemState, k);
+                if (down && !m_prevState[k]) {
+                    int vk = macToVk[k];
+                    if (vk != 0) {
+                        std::string name = keyNameFromVK(vk);
+                        if (!name.empty()) {
+                            Mod::get()->setSavedValue("auto-click-key", name);
+                            if (m_keyLabel) m_keyLabel->setString(name.c_str());
+                            removeFromParentAndCleanup(true);
+                            return;
+                        }
+                    }
+                }
+                m_prevState[k] = down;
+            }
+        #endif
     }
 
 public:
@@ -263,7 +350,7 @@ public:
         return nullptr;
     }
 };
-#endif // GEODE_IS_WINDOWS
+#endif // GEODE_IS_WINDOWS || GEODE_IS_MACOS
 
 // ============================================================
 //  PlayLayer  –  auto-click + orb pulse + 16:9 overlay
@@ -272,7 +359,7 @@ public:
 class $modify (PlayLayer) {
     struct Fields {
         CCNode* m_169overlay = nullptr;
-        #ifdef GEODE_IS_WINDOWS
+        #if defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
             bool m_autoClickFired = false;
             int m_autoClickVK = 0;
             float m_autoClickTimer = 0.f;
@@ -281,7 +368,7 @@ class $modify (PlayLayer) {
 
     void setupHasCompleted() {
         PlayLayer::setupHasCompleted();
-        #ifdef GEODE_IS_WINDOWS
+        #if defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
             m_fields->m_autoClickFired = false;
             m_fields->m_autoClickVK = 0;
             m_fields->m_autoClickTimer = 0.f;
@@ -291,7 +378,7 @@ class $modify (PlayLayer) {
 
     void resetLevel() {
         PlayLayer::resetLevel();
-        #ifdef GEODE_IS_WINDOWS
+        #if defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
             m_fields->m_autoClickFired = false;
             m_fields->m_autoClickVK = 0;
             m_fields->m_autoClickTimer = 0.f;
@@ -300,7 +387,7 @@ class $modify (PlayLayer) {
 
     void destroyPlayer(PlayerObject* player, GameObject* object) {
         PlayLayer::destroyPlayer(player, object);
-        #ifdef GEODE_IS_WINDOWS
+        #if defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
             if (m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click")) {
                 std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
                 int vk = vkFromKeyName(keyName);
@@ -314,7 +401,7 @@ class $modify (PlayLayer) {
 
     void levelComplete() {
         PlayLayer::levelComplete();
-        #ifdef GEODE_IS_WINDOWS
+        #if defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
             if (m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click")) {
                 std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
                 int vk = vkFromKeyName(keyName);
@@ -382,7 +469,7 @@ class $modify (PlayLayer) {
             m_audioEffectsLayer->m_audioScale = s;
         }
 
-        #ifdef GEODE_IS_WINDOWS
+        #if defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
             // --- Auto Click ---
             // Phase 1: release key after timer expires
             if (m_fields->m_autoClickVK != 0) {
@@ -443,7 +530,7 @@ class $modify (CCCircleWave) {
 
 class $modify (RemoveEffectPauseLayer, PauseLayer) {
     struct Fields {
-        #ifdef GEODE_IS_WINDOWS
+        #if defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
             CCLabelBMFont* m_keyLabel = nullptr;
         #endif
     };
@@ -467,7 +554,7 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
         menu->addChild(settingsBtn);
 
         // --- Record Key button ---
-        #ifdef GEODE_IS_WINDOWS
+        #if defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
             std::string curKey = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
             auto keyLabel = CCLabelBMFont::create(curKey.c_str(), "goldFont.fnt");
             keyLabel->setScale(0.55f);
@@ -487,7 +574,7 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
         openSettingsPopup(Mod::get());
     }
 
-    #ifdef GEODE_IS_WINDOWS
+    #if defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
         void onRecordKey(CCObject*) {
             auto scene = CCDirector::sharedDirector()->getRunningScene();
             if (scene) scene->addChild(KeyRecordLayer::create(m_fields->m_keyLabel), 999);
