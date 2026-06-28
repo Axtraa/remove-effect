@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="logo.png" alt="Remove Effect" width="200" />
-  <h1>Remove Effect</h1>
-  <p>Disable visual effects and force 16:9 in Geometry Dash.</p>
+  <img src="logo.png" alt="Axtra's Utils" width="200" />
+  <h1>Axtra's Utils</h1>
+  <p>Disable visual effects, auto-click key simulation, and force 16:9 in Geometry Dash.</p>
 
   [![Build](https://github.com/Axtraa/remove-effect/actions/workflows/multi-platform.yml/badge.svg)](https://github.com/Axtraa/remove-effect/actions/workflows/multi-platform.yml)
   [![Geode](https://img.shields.io/badge/Geode-5.7.1-blue)](https://geode-sdk.org)
@@ -14,6 +14,7 @@
 
 | Feature | Description |
 |---------|-------------|
+| **Auto Click** | Simulate a key press at a configurable percentage (mute Discord, etc.) with interactive key recording |
 | **No Orb Pulse** | Disables the pulsing effect on orbs — cleaner gameplay visuals |
 | **Orb Pulse Size** | Fine-tune the orb pulse size when not fully disabled |
 | **No Circles** | Removes all circle wave effects during gameplay |
@@ -25,7 +26,7 @@
 
 1. Open **Geometry Dash** with the [Geode loader](https://geode-sdk.org) installed
 2. Go to **Mods** → **Download Mods**
-3. Search for **Remove Effect**
+3. Search for **Axtra's Utils**
 4. Click **Install**
 
 ### Manual
@@ -37,8 +38,9 @@ Download the latest `.geode` file from the [Releases](https://github.com/Axtraa/
 1. Open Geometry Dash
 2. Play any level
 3. Press **Pause** during gameplay
-4. Click the **gear icon** in the pause menu (bottom-right) to open Remove Effect settings
+4. Click the **gear icon** in the pause menu (bottom-right) to open settings
 5. Toggle features on/off
+6. Click the **key label** to record a new key for Auto Click
 
 All settings can also be accessed from the Geode mod settings menu.
 

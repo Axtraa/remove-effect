@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-Project: **remove-effect**
+Project: **Axtra's Utils**
 Stack: C++23, Geode SDK 5.7.1 (Geometry Dash modding framework), CMake 3.21+
 
 A cross-platform Geometry Dash mod (Geode) that disables visual effects, provides auto-click key simulation, and forces 16:9 aspect ratio during gameplay. Targets GD version 2.2081 on Windows, macOS, iOS, and Android.
@@ -17,9 +17,10 @@ remove-effect/
 ├── resources/                # Static assets
 │   └── button.png            # Pause menu button sprite
 ├── src/
-│   └── main.cpp              # All mod logic (single file, ~430 lines)
+│   └── main.cpp              # All mod logic (single file, ~500 lines)
 ├── CMakeLists.txt            # Build config (CMake 3.21+, C++23, Geode SDK bindings pinning)
 ├── mod.json                  # Geode mod manifest — settings, metadata, dependencies
+├── changelog.md              # Version changelog
 ├── README.md                 # User-facing documentation
 └── logo.png                  # Mod logo
 ```

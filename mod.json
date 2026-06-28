@@ -7,10 +7,10 @@
     "ios": "2.2081"
   },
   "id": "axtra.remove-effect",
-  "name": "Remove Effect",
+  "name": "Axtra's Utils",
   "version": "v1.0.0",
   "developer": "Axtra",
-  "description": "Disable certain visual effects in the game.",
+  "description": "Disable visual effects, auto-click key simulation, and force 16:9 in Geometry Dash.",
   "dependencies": {
     "geode.node-ids": ">=v1.20.0"
   },
