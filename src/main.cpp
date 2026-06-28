@@ -11,6 +11,7 @@
 
 using namespace geode::prelude;
 
+#ifdef GEODE_IS_WINDOWS
 // ============================================================
 //  Key name ↔ Windows Virtual-Key code conversion
 // ============================================================
@@ -262,6 +263,7 @@ public:
         return nullptr;
     }
 };
+#endif // GEODE_IS_WINDOWS
 
 // ============================================================
 //  PlayLayer  –  auto-click + orb pulse + 16:9 overlay
@@ -270,50 +272,58 @@ public:
 class $modify (PlayLayer) {
     struct Fields {
         CCNode* m_169overlay = nullptr;
-        bool m_autoClickFired = false;
-        int m_autoClickVK = 0;
-        float m_autoClickTimer = 0.f;
+        #ifdef GEODE_IS_WINDOWS
+            bool m_autoClickFired = false;
+            int m_autoClickVK = 0;
+            float m_autoClickTimer = 0.f;
+        #endif
     };
 
     void setupHasCompleted() {
         PlayLayer::setupHasCompleted();
-        m_fields->m_autoClickFired = false;
-        m_fields->m_autoClickVK = 0;
-        m_fields->m_autoClickTimer = 0.f;
+        #ifdef GEODE_IS_WINDOWS
+            m_fields->m_autoClickFired = false;
+            m_fields->m_autoClickVK = 0;
+            m_fields->m_autoClickTimer = 0.f;
+        #endif
         update169Overlay();
     }
 
     void resetLevel() {
         PlayLayer::resetLevel();
-        m_fields->m_autoClickFired = false;
-        m_fields->m_autoClickVK = 0;
-        m_fields->m_autoClickTimer = 0.f;
+        #ifdef GEODE_IS_WINDOWS
+            m_fields->m_autoClickFired = false;
+            m_fields->m_autoClickVK = 0;
+            m_fields->m_autoClickTimer = 0.f;
+        #endif
     }
 
     void destroyPlayer(PlayerObject* player, GameObject* object) {
         PlayLayer::destroyPlayer(player, object);
-        // Toggle back on death only if we had muted
-        if (m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click")) {
-            std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
-            int vk = vkFromKeyName(keyName);
-            if (vk != 0) {
-                simulateKeyPress(vk);
-                simulateKeyRelease(vk);
+        #ifdef GEODE_IS_WINDOWS
+            if (m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click")) {
+                std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
+                int vk = vkFromKeyName(keyName);
+                if (vk != 0) {
+                    simulateKeyPress(vk);
+                    simulateKeyRelease(vk);
+                }
             }
-        }
+        #endif
     }
 
     void levelComplete() {
         PlayLayer::levelComplete();
-        // Toggle back on level end only if we had muted
-        if (m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click")) {
-            std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
-            int vk = vkFromKeyName(keyName);
-            if (vk != 0) {
-                simulateKeyPress(vk);
-                simulateKeyRelease(vk);
+        #ifdef GEODE_IS_WINDOWS
+            if (m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click")) {
+                std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
+                int vk = vkFromKeyName(keyName);
+                if (vk != 0) {
+                    simulateKeyPress(vk);
+                    simulateKeyRelease(vk);
+                }
             }
-        }
+        #endif
     }
 
     void remove169Overlay() {
@@ -372,34 +382,36 @@ class $modify (PlayLayer) {
             m_audioEffectsLayer->m_audioScale = s;
         }
 
-        // --- Auto Click ---
-        // Phase 1: release key after timer expires
-        if (m_fields->m_autoClickVK != 0) {
-            m_fields->m_autoClickTimer -= dt;
-            if (m_fields->m_autoClickTimer <= 0.f) {
-                simulateKeyRelease(m_fields->m_autoClickVK);
-                m_fields->m_autoClickVK = 0;
-            }
-        }
-        // Phase 2: detect percentage and press key
-        if (!m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click") && m_level && m_player1) {
-            float playerX = m_player1->getPositionX();
-            float levelLen = m_levelLength;
-            if (playerX > 0.f && levelLen > 1000.f) {
-                float triggerPct = Mod::get()->getSettingValue<float>("auto-click-percent");
-                float currentPct = (playerX / levelLen) * 100.f;
-                if (currentPct >= triggerPct) {
-                    std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
-                    int vk = vkFromKeyName(keyName);
-                    if (vk != 0) {
-                        simulateKeyPress(vk);
-                        m_fields->m_autoClickVK = vk;
-                        m_fields->m_autoClickTimer = 0.1f; // hold 100ms
-                    }
-                    m_fields->m_autoClickFired = true;
+        #ifdef GEODE_IS_WINDOWS
+            // --- Auto Click ---
+            // Phase 1: release key after timer expires
+            if (m_fields->m_autoClickVK != 0) {
+                m_fields->m_autoClickTimer -= dt;
+                if (m_fields->m_autoClickTimer <= 0.f) {
+                    simulateKeyRelease(m_fields->m_autoClickVK);
+                    m_fields->m_autoClickVK = 0;
                 }
             }
-        }
+            // Phase 2: detect percentage and press key
+            if (!m_fields->m_autoClickFired && Mod::get()->getSettingValue<bool>("auto-click") && m_level && m_player1) {
+                float playerX = m_player1->getPositionX();
+                float levelLen = m_levelLength;
+                if (playerX > 0.f && levelLen > 1000.f) {
+                    float triggerPct = Mod::get()->getSettingValue<float>("auto-click-percent");
+                    float currentPct = (playerX / levelLen) * 100.f;
+                    if (currentPct >= triggerPct) {
+                        std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
+                        int vk = vkFromKeyName(keyName);
+                        if (vk != 0) {
+                            simulateKeyPress(vk);
+                            m_fields->m_autoClickVK = vk;
+                            m_fields->m_autoClickTimer = 0.1f;
+                        }
+                        m_fields->m_autoClickFired = true;
+                    }
+                }
+            }
+        #endif
 
         PlayLayer::updateVisibility(dt);
 
@@ -431,7 +443,9 @@ class $modify (CCCircleWave) {
 
 class $modify (RemoveEffectPauseLayer, PauseLayer) {
     struct Fields {
-        CCLabelBMFont* m_keyLabel = nullptr;
+        #ifdef GEODE_IS_WINDOWS
+            CCLabelBMFont* m_keyLabel = nullptr;
+        #endif
     };
 
     void customSetup() {
@@ -453,16 +467,18 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
         menu->addChild(settingsBtn);
 
         // --- Record Key button ---
-        std::string curKey = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
-        auto keyLabel = CCLabelBMFont::create(curKey.c_str(), "goldFont.fnt");
-        keyLabel->setScale(0.55f);
-        m_fields->m_keyLabel = keyLabel;
-        auto keyBtn = CCMenuItemSpriteExtra::create(
-            keyLabel, this,
-            menu_selector(RemoveEffectPauseLayer::onRecordKey)
-        );
-        keyBtn->setID("remove-effect-record-key-btn"_spr);
-        menu->addChild(keyBtn);
+        #ifdef GEODE_IS_WINDOWS
+            std::string curKey = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
+            auto keyLabel = CCLabelBMFont::create(curKey.c_str(), "goldFont.fnt");
+            keyLabel->setScale(0.55f);
+            m_fields->m_keyLabel = keyLabel;
+            auto keyBtn = CCMenuItemSpriteExtra::create(
+                keyLabel, this,
+                menu_selector(RemoveEffectPauseLayer::onRecordKey)
+            );
+            keyBtn->setID("remove-effect-record-key-btn"_spr);
+            menu->addChild(keyBtn);
+        #endif
 
         menu->updateLayout();
     }
@@ -471,8 +487,10 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
         openSettingsPopup(Mod::get());
     }
 
-    void onRecordKey(CCObject*) {
-        auto scene = CCDirector::sharedDirector()->getRunningScene();
-        if (scene) scene->addChild(KeyRecordLayer::create(m_fields->m_keyLabel), 999);
-    }
+    #ifdef GEODE_IS_WINDOWS
+        void onRecordKey(CCObject*) {
+            auto scene = CCDirector::sharedDirector()->getRunningScene();
+            if (scene) scene->addChild(KeyRecordLayer::create(m_fields->m_keyLabel), 999);
+        }
+    #endif
 };
