@@ -330,6 +330,13 @@ class $modify (PlayLayer) {
             float playerX = m_player1->getPositionX();
             float levelLen = m_level->m_levelLength;
             float currentPct = (levelLen > 0.f) ? (playerX / (levelLen * 30.f)) * 100.f : 0.f;
+
+            static bool s_pctLogged = false;
+            if (!s_pctLogged) {
+                log::info("[RemoveEffect] AutoClick check: playerX={:.1f} levelLen={:.1f} currentPct={:.2f}% triggerPct={:.1f}%", playerX, levelLen, currentPct, triggerPct);
+                s_pctLogged = true;
+            }
+
             if (currentPct >= triggerPct) {
                 std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
                 int vk = vkFromKeyName(keyName);
