@@ -15,52 +15,66 @@ using namespace geode::prelude;
 //  Key name ↔ Windows Virtual-Key code conversion
 // ============================================================
 
+// VK codes as raw hex values (cross-platform, matches Windows VK_*)
+static constexpr int RK_F1 = 0x70, RK_F12 = 0x7B;
+static constexpr int RK_SPACE = 0x20, RK_RETURN = 0x0D, RK_TAB = 0x09, RK_BACK = 0x08;
+static constexpr int RK_DELETE = 0x2E, RK_INSERT = 0x2D, RK_ESCAPE = 0x1B;
+static constexpr int RK_HOME = 0x24, RK_END = 0x23, RK_PRIOR = 0x21, RK_NEXT = 0x22;
+static constexpr int RK_UP = 0x26, RK_DOWN = 0x28, RK_LEFT = 0x25, RK_RIGHT = 0x27;
+static constexpr int RK_LSHIFT = 0xA0, RK_RSHIFT = 0xA1;
+static constexpr int RK_LCTRL = 0xA2, RK_RCTRL = 0xA3;
+static constexpr int RK_LALT = 0xA4, RK_RALT = 0xA5;
+static constexpr int RK_CAPITAL = 0x14;
+static constexpr int RK_NUMPAD0 = 0x60, RK_NUMPAD9 = 0x69;
+static constexpr int RK_MULTIPLY = 0x6A, RK_ADD = 0x6B;
+static constexpr int RK_SUBTRACT = 0x6D, RK_DECIMAL = 0x6E, RK_DIVIDE = 0x6F;
+
 static std::string keyNameFromVK(int vk) {
-    if (vk >= VK_F1 && vk <= VK_F12)
-        return "F" + std::to_string(vk - VK_F1 + 1);
+    if (vk >= RK_F1 && vk <= RK_F12)
+        return "F" + std::to_string(vk - RK_F1 + 1);
     if (vk >= 'A' && vk <= 'Z')
         return std::string(1, static_cast<char>(vk));
     if (vk >= '0' && vk <= '9')
         return std::string(1, static_cast<char>(vk));
 
     switch (vk) {
-        case VK_SPACE:      return "Space";
-        case VK_RETURN:     return "Enter";
-        case VK_TAB:        return "Tab";
-        case VK_BACK:       return "Backspace";
-        case VK_DELETE:     return "Delete";
-        case VK_INSERT:     return "Insert";
-        case VK_HOME:       return "Home";
-        case VK_END:        return "End";
-        case VK_PRIOR:      return "PageUp";
-        case VK_NEXT:       return "PageDown";
-        case VK_UP:         return "Up";
-        case VK_DOWN:       return "Down";
-        case VK_LEFT:       return "Left";
-        case VK_RIGHT:      return "Right";
-        case VK_LSHIFT:     return "LShift";
-        case VK_RSHIFT:     return "RShift";
-        case VK_LCONTROL:   return "LCtrl";
-        case VK_RCONTROL:   return "RCtrl";
-        case VK_LMENU:      return "LAlt";
-        case VK_RMENU:      return "RAlt";
-        case VK_CAPITAL:    return "CapsLock";
-        case VK_NUMPAD0:    return "Num0";
-        case VK_NUMPAD1:    return "Num1";
-        case VK_NUMPAD2:    return "Num2";
-        case VK_NUMPAD3:    return "Num3";
-        case VK_NUMPAD4:    return "Num4";
-        case VK_NUMPAD5:    return "Num5";
-        case VK_NUMPAD6:    return "Num6";
-        case VK_NUMPAD7:    return "Num7";
-        case VK_NUMPAD8:    return "Num8";
-        case VK_NUMPAD9:    return "Num9";
-        case VK_MULTIPLY:   return "Num*";
-        case VK_ADD:        return "Num+";
-        case VK_SUBTRACT:   return "Num-";
-        case VK_DECIMAL:    return "Num.";
-        case VK_DIVIDE:     return "Num/";
-        default:            return "";
+        case RK_SPACE:    return "Space";
+        case RK_RETURN:   return "Enter";
+        case RK_TAB:      return "Tab";
+        case RK_BACK:     return "Backspace";
+        case RK_DELETE:   return "Delete";
+        case RK_INSERT:   return "Insert";
+        case RK_HOME:     return "Home";
+        case RK_END:      return "End";
+        case RK_PRIOR:    return "PageUp";
+        case RK_NEXT:     return "PageDown";
+        case RK_UP:       return "Up";
+        case RK_DOWN:     return "Down";
+        case RK_LEFT:     return "Left";
+        case RK_RIGHT:    return "Right";
+        case RK_LSHIFT:   return "LShift";
+        case RK_RSHIFT:   return "RShift";
+        case RK_LCTRL:    return "LCtrl";
+        case RK_RCTRL:    return "RCtrl";
+        case RK_LALT:     return "LAlt";
+        case RK_RALT:     return "RAlt";
+        case RK_CAPITAL:  return "CapsLock";
+        case RK_NUMPAD0:  return "Num0";
+        case 0x61: return "Num1";
+        case 0x62: return "Num2";
+        case 0x63: return "Num3";
+        case 0x64: return "Num4";
+        case 0x65: return "Num5";
+        case 0x66: return "Num6";
+        case 0x67: return "Num7";
+        case 0x68: return "Num8";
+        case RK_NUMPAD9:  return "Num9";
+        case RK_MULTIPLY: return "Num*";
+        case RK_ADD:      return "Num+";
+        case RK_SUBTRACT: return "Num-";
+        case RK_DECIMAL:  return "Num.";
+        case RK_DIVIDE:   return "Num/";
+        default:          return "";
     }
 }
 
@@ -70,7 +84,7 @@ static int vkFromKeyName(const std::string& name) {
     if (name[0] == 'F' && name.size() > 1) {
         try {
             int n = std::stoi(name.substr(1));
-            if (n >= 1 && n <= 12) return VK_F1 + n - 1;
+            if (n >= 1 && n <= 12) return RK_F1 + n - 1;
         } catch (...) {}
         return 0;
     }
@@ -83,37 +97,37 @@ static int vkFromKeyName(const std::string& name) {
         return 0;
     }
 
-    if (name == "Space")      return VK_SPACE;
-    if (name == "Enter")      return VK_RETURN;
-    if (name == "Tab")        return VK_TAB;
-    if (name == "Backspace")  return VK_BACK;
-    if (name == "Delete")     return VK_DELETE;
-    if (name == "Insert")     return VK_INSERT;
-    if (name == "Home")       return VK_HOME;
-    if (name == "End")        return VK_END;
-    if (name == "PageUp")     return VK_PRIOR;
-    if (name == "PageDown")   return VK_NEXT;
-    if (name == "Up")         return VK_UP;
-    if (name == "Down")       return VK_DOWN;
-    if (name == "Left")       return VK_LEFT;
-    if (name == "Right")      return VK_RIGHT;
-    if (name == "LShift")     return VK_LSHIFT;
-    if (name == "RShift")     return VK_RSHIFT;
-    if (name == "LCtrl")      return VK_LCONTROL;
-    if (name == "RCtrl")      return VK_RCONTROL;
-    if (name == "LAlt")       return VK_LMENU;
-    if (name == "RAlt")       return VK_RMENU;
-    if (name == "CapsLock")   return VK_CAPITAL;
-    if (name == "Num0")       return VK_NUMPAD0;
-    if (name == "Num1")       return VK_NUMPAD1;
-    if (name == "Num2")       return VK_NUMPAD2;
-    if (name == "Num3")       return VK_NUMPAD3;
-    if (name == "Num4")       return VK_NUMPAD4;
-    if (name == "Num5")       return VK_NUMPAD5;
-    if (name == "Num6")       return VK_NUMPAD6;
-    if (name == "Num7")       return VK_NUMPAD7;
-    if (name == "Num8")       return VK_NUMPAD8;
-    if (name == "Num9")       return VK_NUMPAD9;
+    if (name == "Space")      return RK_SPACE;
+    if (name == "Enter")      return RK_RETURN;
+    if (name == "Tab")        return RK_TAB;
+    if (name == "Backspace")  return RK_BACK;
+    if (name == "Delete")     return RK_DELETE;
+    if (name == "Insert")     return RK_INSERT;
+    if (name == "Home")       return RK_HOME;
+    if (name == "End")        return RK_END;
+    if (name == "PageUp")     return RK_PRIOR;
+    if (name == "PageDown")   return RK_NEXT;
+    if (name == "Up")         return RK_UP;
+    if (name == "Down")       return RK_DOWN;
+    if (name == "Left")       return RK_LEFT;
+    if (name == "Right")      return RK_RIGHT;
+    if (name == "LShift")     return RK_LSHIFT;
+    if (name == "RShift")     return RK_RSHIFT;
+    if (name == "LCtrl")      return RK_LCTRL;
+    if (name == "RCtrl")      return RK_RCTRL;
+    if (name == "LAlt")       return RK_LALT;
+    if (name == "RAlt")       return RK_RALT;
+    if (name == "CapsLock")   return RK_CAPITAL;
+    if (name == "Num0")       return RK_NUMPAD0;
+    if (name == "Num1")       return 0x61;
+    if (name == "Num2")       return 0x62;
+    if (name == "Num3")       return 0x63;
+    if (name == "Num4")       return 0x64;
+    if (name == "Num5")       return 0x65;
+    if (name == "Num6")       return 0x66;
+    if (name == "Num7")       return 0x67;
+    if (name == "Num8")       return 0x68;
+    if (name == "Num9")       return RK_NUMPAD9;
 
     return 0;
 }
