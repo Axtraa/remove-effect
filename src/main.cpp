@@ -305,6 +305,14 @@ class $modify (PlayLayer) {
     }
 
     virtual void updateVisibility(float dt) {
+        // Debug: log once to confirm hook fires
+        static bool s_loggedOnce = false;
+        if (!s_loggedOnce) {
+            log::info("[RemoveEffect] updateVisibility called! auto-click={} m_level={} m_player1={}",
+                Mod::get()->getSettingValue<bool>("auto-click"), (void*)m_level, (void*)m_player1);
+            s_loggedOnce = true;
+        }
+
         auto* fmod = FMODAudioEngine::get();
         auto pulse1 = fmod->m_pulse1;
         auto audioScale = m_audioEffectsLayer->m_audioScale;
