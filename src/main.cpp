@@ -276,6 +276,13 @@ class $modify (PlayLayer) {
         update169Overlay();
     }
 
+    void resetLevel() {
+        PlayLayer::resetLevel();
+        m_fields->m_autoClickFired = false;
+        m_fields->m_autoClickVK = 0;
+        m_fields->m_autoClickTimer = 0.f;
+    }
+
     void remove169Overlay() {
         if (m_fields->m_169overlay) {
             m_fields->m_169overlay->removeFromParent();
