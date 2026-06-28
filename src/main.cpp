@@ -581,23 +581,27 @@ class $modify (RemoveEffectPauseLayer, PauseLayer) {
             );
             keyBtn->setID("remove-effect-record-key-btn"_spr);
             menu->addChild(keyBtn);
-        #else
-            // Mobile: show auto-click unavailable indicator
-            auto naLabel = CCLabelBMFont::create("Key: N/A", "goldFont.fnt");
-            naLabel->setScale(0.5f);
-            naLabel->setOpacity(100);
-            auto naBtn = CCMenuItemSpriteExtra::create(
-                naLabel, this,
-                menu_selector(RemoveEffectPauseLayer::onOpenSettings)
-            );
-            naBtn->setID("remove-effect-record-key-btn"_spr);
-            menu->addChild(naBtn);
         #endif
 
         menu->updateLayout();
     }
 
     void onOpenSettings(CCObject*) {
+        #if !defined(GEODE_IS_WINDOWS) && !defined(GEODE_IS_MACOS)
+            // Force auto-click off on mobile
+            if (Mod::get()->getSettingValue<bool>("auto-click")) {
+                Mod::get()->setSettingValue("auto-click", false);
+                auto scene = CCDirector::sharedDirector()->getRunningScene();
+                if (scene) {
+                    auto alert = FLAlertLayer::create(
+                        "Auto Click",
+                        "Auto Click is not available on mobile.",
+                        "OK"
+                    );
+                    alert->show();
+                }
+            }
+        #endif
         openSettingsPopup(Mod::get());
     }
 
