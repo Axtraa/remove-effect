@@ -208,12 +208,16 @@ protected:
         curLabel->setOpacity(140);
         addChild(curLabel);
 
-        // cancel hint
-        auto hint = CCLabelBMFont::create("ESC to cancel", "goldFont.fnt");
-        hint->setScale(0.4f);
-        hint->setPosition({win.width / 2, win.height / 2 - 65});
-        hint->setOpacity(100);
-        addChild(hint);
+        // cancel button
+        auto cancelLabel = CCLabelBMFont::create("Cancel", "goldFont.fnt");
+        cancelLabel->setScale(0.5f);
+        auto cancelBtn = CCMenuItemSpriteExtra::create(
+            cancelLabel, this,
+            menu_selector(KeyRecordLayer::onCancel)
+        );
+        auto menu = CCMenu::create(cancelBtn, nullptr);
+        menu->setPosition({win.width / 2, win.height / 2 - 65});
+        addChild(menu);
 
         // snapshot current key state so we only detect NEW presses
         #ifdef GEODE_IS_WINDOWS
@@ -231,10 +235,6 @@ protected:
             for (int k = 1; k < 256; k++) {
                 bool down = (GetAsyncKeyState(k) & 0x8000) != 0;
                 if (down && !m_prevState[k]) {
-                    if (k == VK_ESCAPE) {
-                        removeFromParentAndCleanup(true);
-                        return;
-                    }
                     std::string name = keyNameFromVK(k);
                     if (!name.empty()) {
                         Mod::get()->setSavedValue("auto-click-key", name);
@@ -248,6 +248,10 @@ protected:
     }
 
 public:
+    void onCancel(CCObject*) {
+        removeFromParentAndCleanup(true);
+    }
+
     static KeyRecordLayer* create() {
         auto* ret = new KeyRecordLayer();
         if (ret && ret->init()) { ret->autorelease(); return ret; }
