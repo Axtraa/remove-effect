@@ -543,6 +543,8 @@ class $modify (CCCircleWave) {
 // ============================================================
 //  PauseLayer  –  settings button + key-record button
 // ============================================================
+
+class $modify (RemoveEffectPauseLayer, PauseLayer) {
     struct Fields {
         #if defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
             CCLabelBMFont* m_keyLabel = nullptr;
