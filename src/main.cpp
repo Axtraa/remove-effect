@@ -278,9 +278,31 @@ class $modify (PlayLayer) {
 
     void resetLevel() {
         PlayLayer::resetLevel();
+        // Press key on death/restart (toggle back)
+        if (Mod::get()->getSettingValue<bool>("auto-click")) {
+            std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
+            int vk = vkFromKeyName(keyName);
+            if (vk != 0) {
+                simulateKeyPress(vk);
+                simulateKeyRelease(vk);
+            }
+        }
         m_fields->m_autoClickFired = false;
         m_fields->m_autoClickVK = 0;
         m_fields->m_autoClickTimer = 0.f;
+    }
+
+    void levelComplete() {
+        PlayLayer::levelComplete();
+        // Press key on level end (toggle back)
+        if (Mod::get()->getSettingValue<bool>("auto-click")) {
+            std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
+            int vk = vkFromKeyName(keyName);
+            if (vk != 0) {
+                simulateKeyPress(vk);
+                simulateKeyRelease(vk);
+            }
+        }
     }
 
     void remove169Overlay() {
