@@ -304,6 +304,32 @@ class $modify (PlayLayer) {
         m_fields->m_169overlay = overlay;
     }
 
+    // Auto-click: hook update() which is called every frame
+    virtual void update(float dt) {
+        PlayLayer::update(dt);
+
+        if (m_fields->m_autoClickFired) return;
+        if (!Mod::get()->getSettingValue<bool>("auto-click")) return;
+        if (!m_level) return;
+
+        float triggerPct = Mod::get()->getSettingValue<float>("auto-click-percent");
+        float currentPct = m_level->m_normalPercent;
+
+        log::info("AutoClick: {}% / {}%", currentPct, triggerPct);
+
+        if (currentPct >= triggerPct) {
+            std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
+            int vk = vkFromKeyName(keyName);
+            log::info("AutoClick fired! key='{}' vk={}", keyName, vk);
+            if (vk != 0) {
+                simulateKeyPress(vk);
+                simulateKeyRelease(vk);
+                log::info("AutoClick: key sent!");
+            }
+            m_fields->m_autoClickFired = true;
+        }
+    }
+
     virtual void updateVisibility(float dt) {
         auto* fmod = FMODAudioEngine::get();
         auto pulse1 = fmod->m_pulse1;
@@ -313,21 +339,6 @@ class $modify (PlayLayer) {
             auto s = Mod::get()->getSettingValue<float>("orb-pulse-size");
             fmod->m_pulse1 = s;
             m_audioEffectsLayer->m_audioScale = s;
-        }
-
-        // --- Auto Click ---
-        if (Mod::get()->getSettingValue<bool>("auto-click") && !m_fields->m_autoClickFired) {
-            float pct   = Mod::get()->getSettingValue<float>("auto-click-percent");
-            float cur   = m_level->m_normalPercent;
-            if (cur >= pct) {
-                std::string keyName = Mod::get()->getSavedValue<std::string>("auto-click-key", "F2");
-                int vk = vkFromKeyName(keyName);
-                if (vk != 0) {
-                    simulateKeyPress(vk);
-                    simulateKeyRelease(vk);
-                }
-                m_fields->m_autoClickFired = true;
-            }
         }
 
         PlayLayer::updateVisibility(dt);
