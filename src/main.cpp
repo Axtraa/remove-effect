@@ -396,6 +396,7 @@ class $modify (PlayLayer) {
             m_fields->m_autoClickFired = false;
             m_fields->m_autoClickVK = 0;
             m_fields->m_autoClickTimer = 0.f;
+            m_fields->m_startPosX = m_player1 ? m_player1->getPositionX() : 0.f;
         #endif
     }
 
